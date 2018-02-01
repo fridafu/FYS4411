@@ -16,6 +16,13 @@ public:
     int N;
     vec R;
     double E_L;
+    double alpha;
+    double a_h0;
+    vec g;
+    vec f;
+    int mc; //num MC cycles
+    double rho; //position update parameter
+
 
 private:
 }

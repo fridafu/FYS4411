@@ -1,7 +1,7 @@
 #include solver.h
 
 
-void Solver::solve(n=10,N=1){
+void Solver::solve(mc=10,N=1){
 
     random_device rd;
     mt19937 gen(rd());
@@ -12,39 +12,49 @@ void Solver::solve(n=10,N=1){
 
     while(num_alpha < len(alpha)){
         // initialize random positions
+
         i = rand() % N;
         j = rand() % N;
-        r = doubleRNG(gen);
+
         //initialize expectation values
         int expEL = 0;
         int expEL2 = 0;
 
         // iterate over MC cycles
-        for(i=0;i<n;i++){
+        for(i=0;i<mc;i++){
            //set up PDF |phi|^2
-           pdf = PDF(r)
+           pdf = PDF(R);
+           R(0) = 0;
            //propose a new position R by moving one boson at the time
-
+               for(j=0;j<N;j++){
+                   r = doubleRNG(gen) - 0.5;
+                   R(j+1) = R(j) + r*rho;
+                   pdf = PDF(R);
+           }
         }
-
-
         num_alpha += 1
     }
 }
 
 void wavefunc(R,alpha){
-    bool interact = //y/n;
+    //bool interact = y/n
+    //g = exp(-alpha*(x(i)^2 + y(i)^2 + beta*z(i)^2));
+    g = exp(-alpha*R)
+    f = 1; //no interaction here!!
+    phi = g*f;
+}
+
+void PDF(vec R){
+    return abs(wavefunc(R))^2;
+}
+
+Solver::Solver(double beta, double hbar, double m, double omega, double a_h0, double alpha, double rho){
     beta = 1;
     hbar = 1;
     m = 1;
     omega = 1;
     a_h0 = sqrt(hbar/(m*omega));
     alpha = 1./(2*a_h0^2);
-    g = exp(-alpha(x(i)^2 + y(i)^2 + beta*z(i)^2));
-    f = 1;
-    phi = g*f;
-}
-
-void PDF(vec R){
-    PDF = abs(wavefunc(R))^2
+    //W = zeros(N,N)
+    rho = 0.001;
 }
