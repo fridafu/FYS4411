@@ -9,27 +9,36 @@ void Solver::solve(mc=10,N=1){
 
     // loop over alpha
     int num_alpha = 0;
-
+    int dim = 1;
     while(num_alpha < len(alpha)){
         // initialize random positions
-
-        i = rand() % N;
-        j = rand() % N;
+        int i; int j;
+        //i = rand() % N;
+        //j = rand() % N;
 
         //initialize expectation values
         int expEL = 0;
         int expEL2 = 0;
+        vec R = zeros((N,dim));
+        vec Rnew = R;
+        // call for function that initialize position when we are ready
 
         // iterate over MC cycles
         for(i=0;i<mc;i++){
            //set up PDF |phi|^2
            pdf = PDF(R);
-           R(0) = 0;
-           //propose a new position R by moving one boson at the time
-               for(j=0;j<N;j++){
-                   r = doubleRNG(gen) - 0.5;
-                   R(j+1) = R(j) + r*rho;
-                   pdf = PDF(R);
+           vec Rnew;
+
+           //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
+                for(j=0;j<N;j++){
+                    Rnew = zeros(N); // to suggest new position for boson
+                    r = doubleRNG(gen) - 0.5;
+                    Rnew(j) = R(j) + r*rho;
+                    pdf = PDF(R);
+                    // how to determine if we accept or reject new position
+
+
+
            }
         }
         num_alpha += 1
@@ -39,7 +48,7 @@ void Solver::solve(mc=10,N=1){
 void wavefunc(R,alpha){
     //bool interact = y/n
     //g = exp(-alpha*(x(i)^2 + y(i)^2 + beta*z(i)^2));
-    g = exp(-alpha*R)
+    g = exp(-alpha*dot(R,R));
     f = 1; //no interaction here!!
     phi = g*f;
 }
