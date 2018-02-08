@@ -24,6 +24,7 @@ void Solver::solve(mc=10,N=1){
         int expEL2 = 0;
         vec R = zeros((N,dim));
         vec Rnew = R;
+
         // call for function that initialize position when we are ready
 
         // iterate over MC cycles
@@ -33,13 +34,25 @@ void Solver::solve(mc=10,N=1){
            vec Rnew;
 
            //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
-                for(j=0;j<N;j++){
-                    Rnew = zeros(N); // to suggest new position for boson
-                    r = doubleRNG(gen) - 0.5;
-                    Rnew(j) = R(j) + r*rho;
-                    pdf = PDF(R);
-                    // how to determine if we accept or reject new position
-
+           for(j=0;j<N;j++){
+                Rnew = zeros(N); // to suggest new position for boson
+                r = doubleRNG(gen) - 0.5;
+                Rnew(j) = R(j) + r*rho;
+                pdf = PDF(R);
+                // how to determine if we accept or reject new position
+                A = (wavefunc(Rnew,alpha))/wavefunc(R,alpha);
+                if(A > 1){
+                    //accept new position
+                    R(j) = Rnew(j);
+                }
+                else{
+                    //compare probability with a random number between 0 and 1
+                    r2 = doubleRNG(gen);
+                    if(A > r2){
+                        //accept new position
+                        R(j) = Rnew(j);
+                    }
+                }
 
 
            }
@@ -54,6 +67,7 @@ void wavefunc(R,alpha){
     g = exp(-alpha*dot(R,R));
     f = 1; //no interaction here!!
     phi = g*f;
+    return phi;
 }
 
 void PDF(vec R){

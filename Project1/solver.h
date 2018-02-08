@@ -19,6 +19,9 @@ public:
     double alpha;
     double a_h0;
     vec g;
+    double r;
+    double r2;
+    double A;
     vec f;
     int mc; //num MC cycles
     double rho; //position update parameter
