@@ -1,4 +1,7 @@
-#include solver.h
+#include "armadillo"
+#include "solver.h"
+
+using namespace arma;
 
 
 void Solver::solve(mc=10,N=1){

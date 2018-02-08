@@ -10,6 +10,7 @@ SOURCES += main.cpp
 SOURCES += solver.cpp
 SOURCES += solver.h
 
+
 LIBS += -larmadillo -llapack -lblas
 # MPI Settings
 QMAKE_CXX = mpicxx

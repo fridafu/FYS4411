@@ -1,12 +1,12 @@
 #ifndef SOLVER_H
 #define SOLVER_H
-#include "armadillo"
-#include <random>
+
 #include <iostream>
 #include <fstream>
-
-using namespace arma;
+#include <random>
+#include "armadillo"
 using namespace std;
+using namespace arma;
 
 class Solver{
 public:
