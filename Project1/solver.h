@@ -10,7 +10,7 @@ using namespace arma;
 
 class Solver{
 public:
-    Solver()
+    Solver(double beta, double hbar, double m, double omega, double a_h0, double alpha, double rho);
     double beta;
     double hbar;
     int N;
@@ -23,9 +23,13 @@ public:
     double r2;
     double A;
     vec f;
+    double phi;
     int mc; //num MC cycles
     double rho; //position update parameter
-
-
+    // functions in class
+    double PDF(vec R, double alpha_);
+    void solve(int mc, int N);// int mc=10, int N=1
+    double wavefunc(vec R, double alpha_);
 private:
-}
+};
+#endif
