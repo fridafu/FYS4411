@@ -61,9 +61,15 @@ void Solver::solve(int mc, int N){// need mc, N
 
 
            }
+        deltaE = localEnergy(Rnew);
+        energySum += deltaE;
+        energySquaredSum += deltaE*deltaE;
         }
         num_alpha += 1;
     }
+    double energy = energySum/(mc * N);
+    double energySquared = energySquaredSum/(mc * N);
+    cout << "Energy: " << energy << " Energy (squared sum): " << energySquared << endl;
 }
 
 double Solver::wavefunc(vec R, double alpha_){// need R, alpha
@@ -75,8 +81,12 @@ double Solver::wavefunc(vec R, double alpha_){// need R, alpha
     return phi;
 }
 
+
 double Solver::PDF(vec R, double alpha_){
     return pow(abs(wavefunc(R, alpha_)),2);
+
+double Solver::Elocal(){
+
 }
 
 Solver::Solver(double beta, double hbar, double m, double omega, double a_h0, double alpha, double rho){
