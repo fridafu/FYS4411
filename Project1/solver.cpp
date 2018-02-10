@@ -56,9 +56,15 @@ void Solver::solve(mc=10,N=1){
 
 
            }
+        deltaE = localEnergy(Rnew);
+        energySum += deltaE;
+        energySquaredSum += deltaE*deltaE;
         }
         num_alpha += 1
     }
+    double energy = energySum/(mc * N);
+    double energySquared = energySquaredSum/(mc * N);
+    cout << "Energy: " << energy << " Energy (squared sum): " << energySquared << endl;
 }
 
 void wavefunc(R,alpha){
@@ -68,6 +74,10 @@ void wavefunc(R,alpha){
     f = 1; //no interaction here!!
     phi = g*f;
     return phi;
+}
+
+double Solver::Elocal(){
+
 }
 
 void PDF(vec R){
