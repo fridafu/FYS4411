@@ -12,14 +12,14 @@ void Solver::solve(int mc, int N){// need mc, N
 
     // loop over alpha
     int num_alpha = 0;
-    int dim = 1;
-    vec alpha;
+
+    vec alpha = ones(1);
     double pdf;
     double current_alpha;
     double energySum = 0;
     double energySquaredSum = 0;
     //nt len_alpha = size(alpha);
-    while(num_alpha < sizeof(alpha)){
+    while(num_alpha < size(alpha,0)){
         current_alpha = alpha(num_alpha);
         // initialize random positions
         int i; int j;
@@ -48,18 +48,18 @@ void Solver::solve(int mc, int N){// need mc, N
                 pdf = PDF(R,current_alpha); // now we calculate it two times... not necessary
                 // how to determine if we accept or reject new position
                 A = (wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);
-                if(A > 1 ){
+                if(A > 1 || A > doubleRNG(gen)){
                     //accept new position
                     R(j) = Rnew(j);
                 }
-                else{
+                //else{
                     //compare probability with a random number between 0 and 1
-                    r2 = doubleRNG(gen);
-                    if(A > r2){
-                        //accept new position
-                        R(j) = Rnew(j);
-                    }
-                }
+                    //r2 = doubleRNG(gen);
+                    //if(A > r2){
+                    //    //accept new position
+                    //    R(j) = Rnew(j);
+                    //}
+                //}
 
 
            }
@@ -89,17 +89,23 @@ double Solver::PDF(vec R, double alpha_){
 
 }
 double Solver::Elocal(double omega){
+    // cout << "in Elocal"<< endl;
+    cout << "hbar " << hbar << endl;// * omega * N
+    cout << "omega " << omega << endl;
+    cout << "N " << N << endl;
     return 0.5 * hbar * omega * N;
 }
 
-Solver::Solver(double beta, double hbar, double m, double omega, double a_h0, double alpha, double rho, int mc){
-    beta = 1;
-    hbar = 1;
-    m = 1;
-    omega = 1;
+Solver::Solver(double s_beta, double s_hbar, double mass, double s_omega, double s_alpha, double s_rho, int s_mc, int s_N, int s_dim){
+    beta = s_beta;
+    hbar = s_hbar;
+    m = mass;
+    omega = s_omega;
     a_h0 = sqrt(hbar/(m*omega));
     alpha = 1./((2*a_h0)*(2*a_h0));
     //W = zeros(N,N)
-    rho = 0.001;
-    mc = 100;
+    rho = s_rho;// 0.001;
+    mc = s_mc;
+    N = s_N;
+    dim = s_dim;
 }
