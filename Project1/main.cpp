@@ -12,4 +12,13 @@ int main()
     cout << R << endl;
     return 0;
 
+    Solver S();
+
+    for (int i = 0; i < 100; i++)
+    {
+         S.solve(mc);
+    }
+
+    cout << "equilib reached" << endl;
+
 }

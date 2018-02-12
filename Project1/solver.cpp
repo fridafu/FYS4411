@@ -16,6 +16,8 @@ void Solver::solve(int mc, int N){// need mc, N
     vec alpha;
     double pdf;
     double current_alpha;
+    double energySum = 0;
+    double energySquaredSum = 0;
     //nt len_alpha = size(alpha);
     while(num_alpha < sizeof(alpha)){
         current_alpha = alpha(num_alpha);
@@ -46,7 +48,7 @@ void Solver::solve(int mc, int N){// need mc, N
                 pdf = PDF(R,current_alpha); // now we calculate it two times... not necessary
                 // how to determine if we accept or reject new position
                 A = (wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);
-                if(A > 1){
+                if(A > 1 ){
                     //accept new position
                     R(j) = Rnew(j);
                 }
@@ -61,7 +63,7 @@ void Solver::solve(int mc, int N){// need mc, N
 
 
            }
-        deltaE = localEnergy(Rnew);
+        double deltaE = Elocal(omega);
         energySum += deltaE;
         energySquaredSum += deltaE*deltaE;
         }
@@ -85,11 +87,12 @@ double Solver::wavefunc(vec R, double alpha_){// need R, alpha
 double Solver::PDF(vec R, double alpha_){
     return pow(abs(wavefunc(R, alpha_)),2);
 
-double Solver::Elocal(){
-
+}
+double Solver::Elocal(double omega){
+    return 0.5 * hbar * omega * N;
 }
 
-Solver::Solver(double beta, double hbar, double m, double omega, double a_h0, double alpha, double rho){
+Solver::Solver(double beta, double hbar, double m, double omega, double a_h0, double alpha, double rho, int mc){
     beta = 1;
     hbar = 1;
     m = 1;
@@ -98,4 +101,5 @@ Solver::Solver(double beta, double hbar, double m, double omega, double a_h0, do
     alpha = 1./((2*a_h0)*(2*a_h0));
     //W = zeros(N,N)
     rho = 0.001;
+    mc = 100;
 }

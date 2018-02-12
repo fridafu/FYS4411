@@ -10,10 +10,10 @@ using namespace arma;
 
 class Solver{
 public:
-    Solver(double beta, double hbar, double m, double omega, double a_h0, double alpha, double rho);
+    Solver(double beta, double hbar, double m, double omega, double a_h0, double alpha, double rho, int mc);
     double beta;
     double hbar;
-    int N;
+    int N; //number of particles
     vec R;
     double E_L;
     double alpha;
@@ -22,6 +22,7 @@ public:
     double r;
     double r2;
     double A;
+    double omega;
     vec f;
     double phi;
     int mc; //num MC cycles
@@ -30,6 +31,7 @@ public:
     double PDF(vec R, double alpha_);
     void solve(int mc, int N);// int mc=10, int N=1
     double wavefunc(vec R, double alpha_);
+    double Elocal(double omega); // later also R
 private:
 };
 #endif
