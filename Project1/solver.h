@@ -10,7 +10,7 @@ using namespace arma;
 
 class Solver{
 public:
-    Solver(double beta, double hbar, double m, double omega, double a_h0, double alpha, double rho, int mc);
+    Solver(double s_beta, double s_hbar, double mass, double s_omega, double s_alpha, double s_rho, int s_mc, int s_N, int s_dim);
     double beta;
     double hbar;
     int N; //number of particles
@@ -23,9 +23,11 @@ public:
     double r2;
     double A;
     double omega;
+    double m;
     vec f;
     double phi;
     int mc; //num MC cycles
+    int dim;
     double rho; //position update parameter
     // functions in class
     double PDF(vec R, double alpha_);
