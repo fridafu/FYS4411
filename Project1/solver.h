@@ -14,26 +14,27 @@ public:
     double beta;
     double hbar;
     int N; //number of particles
-    vec R;
+    mat R;
     double E_L;
     double alpha;
     double a_h0;
-    vec g;
+    double g;
     double r;
     double r2;
     double A;
     double omega;
     double m;
-    vec f;
+    double f;
     double phi;
     int mc; //num MC cycles
     int dim;
     double rho; //position update parameter
     // functions in class
-    double PDF(vec R, double alpha_);
-    void solve(int mc, int N);// int mc=10, int N=1
-    double wavefunc(vec R, double alpha_);
+    double PDF(mat R, double alpha_);
+    void solve();// int mc=10, int N=1
+    double wavefunc(mat R, double alpha_);
     double Elocal(double omega); // later also R
+    mat init_pos();
 private:
 };
 #endif
