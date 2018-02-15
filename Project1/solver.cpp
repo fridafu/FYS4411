@@ -17,21 +17,29 @@ void Solver::solve(){// need mc, N
     double current_alpha;
     double energySum = 0;
     double energySquaredSum = 0;
+    double Ek = 0;
 
     while(num_alpha < size(alpha,0)){
         current_alpha = alpha(num_alpha);
         // initialize random positions
         mat R = init_pos();
         mat Rnew = R;
+        double wavefuncplus = 0;
+        double wavefuncminus = 0;
+        double wavefuncnow = wavefunc(R,current_alpha);
 
         int i; int j; int q;
 
         //initialize expectation values
-        int expEL = 0;
-        int expEL2 = 0;
+
+        double h = 0.00001;
+        mat Rplus = zeros(N,dim);
+        mat Rminus = zeros(N,dim);
 
         // iterate over MC cycles
         for(i=0;i<mc;i++){
+
+
            //set up PDF |phi|^2
             pdf = PDF(R,current_alpha);
 
@@ -40,20 +48,39 @@ void Solver::solve(){// need mc, N
                 for(q=0;q<dim;q++){
                     r = doubleRNG(gen) - 0.5;
                     Rnew(j,q) = R(j,q) + r*rho;
+                    cout << "rho = " << rho << endl;
+
+
+
                 }
-                A = (wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);
+                A = (wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha); //wavefuncnow???
                 // test if new position is more probable or if larger than random number doubleRNG(gen) in (0,1)
                 if(A > 1 || A > doubleRNG(gen)){
                     //accept new position
                     R(j) = Rnew(j);
+                    wavefuncnow = wavefunc(R, current_alpha);
+                    // Calculate kinetic energy by numerical derivation
+                    Rplus = Rminus = R;
+                    Rplus(j,q) += h;
+                    Rminus(j,q) -= h;
+                    wavefuncplus = wavefunc(Rplus, current_alpha);
+                    wavefuncminus = wavefunc(Rminus, current_alpha);
+                    Ek += (wavefuncplus+wavefuncminus - 2*wavefuncnow);
+                    cout << Ek << endl;
                 }
 
         }
+
         // calculate change in energy
         double deltaE = Elocal(omega);
         // calculate toltal energy
         energySum += deltaE;
         energySquaredSum += deltaE*deltaE;
+
+        // calculate kinetic energy
+        cout << Ek << endl;
+        Ek = (- 0.5 * Ek)/wavefuncnow;
+
         }
         num_alpha += 1;
     }
@@ -63,6 +90,7 @@ void Solver::solve(){// need mc, N
     double energySquared = energySquaredSum/(mc * N);
     cout << "E_tot = " << totalenergy << endl;
     cout << "Energy: " << energy << " Energy (squared sum): " << energySquared << endl;
+    cout << "Kinetic Energy = " << Ek << endl;
 }
 
 double Solver::wavefunc(mat R, double alpha_){// need R, alpha
