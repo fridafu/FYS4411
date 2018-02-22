@@ -160,6 +160,12 @@ void Solver::solve_num(){
     cout << "sumKE+Vext (should be equal to Energy) " << sumKE/(N*mc) << endl;
 }
 
+mat Solver::F(mat R_){
+    return -4*R_*alpha;
+}
+
+
+
 double Solver::energy_num(mat R, double alphanow){
     double wavefuncnow = wavefunc(R, alphanow);
 
@@ -187,6 +193,72 @@ double Solver::energy_num(mat R, double alphanow){
     return Ek + Vext;
 }
 
+void Solver::langevin(){
+    double D = 0.5; //diffusion coefficient
+    double dt = 0.01; //time step
+    double xi;
+    random_device rd;
+    mt19937 gen(rd());
+    normal_distribution<double> gaussianRNG(0.,0.5);
+    uniform_real_distribution<double> doubleRNG(0,1);
+
+
+    // loop over alpha when we try out
+    int num_alpha = 0;
+    vec alpha_vec = ones(1);
+    double current_alpha;
+    double sumKE = 0;
+    double sdt = sqrt(dt);
+    while(num_alpha < size(alpha_vec,0)){
+        current_alpha = alpha;//alpha_vec(num_alpha);
+        // initialize random positions
+        mat R = init_pos();
+        mat Rnew = R;
+        int i; int j; int q;
+        mat Fq = F(R);
+        //initialize expectation values
+        mat Rplus = zeros(N,dim);
+        mat Rminus = zeros(N,dim);
+        double accept = 0;
+        mat Fqnew = Fq;
+
+        double greens;
+        // iterate over MC cycles
+
+        for(i=0;i<mc;i++){
+            //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
+            for(j=0;j<N;j++){
+                greens = 0;
+                for(q=0;q<dim;q++){
+                    xi = gaussianRNG(gen);
+                    Rnew(j,q) = R(j,q) + D*Fq(j,q)*dt + xi*sdt;
+                    Fqnew(j,q) = -4*Rnew(j,q)*alpha;
+                    greens += 0.5*(Fq(j,q) + Fqnew(j,q))* (D*dt*0.5*(Fq(j,q)-Fqnew(j,q))-Rnew(j,q)+R(j,q));
+
+                }
+                greens = exp(greens);
+                A = greens*(wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);
+                A *= A;
+                // test if new position is more probable or if larger than random number doubleRNG(gen) in (0,1)
+                if((A > 1) || (A > doubleRNG(gen))){
+                    //accept new position
+                    R(j) = Rnew(j);
+                    Fq(j) = Fqnew(j);
+                    accept += 1;
+                }
+                // calculate change in energy
+                double deltakinE = energy_num(R, current_alpha);
+                sumKE += deltakinE;
+                // calculate total energy
+                }
+        }
+        num_alpha += 1;
+        cout << "accept FOKKER " << accept/(mc*N) << endl;
+    }
+
+    cout << "sumKE+Vext FOKKER (should be equal to Energy) " << sumKE/(N*mc) << endl;
+
+}
 
 Solver::Solver(double s_beta, double s_hbar, double mass, double s_omega, double s_alpha, double s_rho, int s_mc, int s_N, int s_dim, double s_h){
     beta = s_beta;

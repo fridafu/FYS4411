@@ -24,7 +24,7 @@ int main(){
     Solver S(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h);
     //Solver(double s_beta, double s_hbar, double mass, double s_omega, double s_alpha, double s_rho, int s_mc, int s_N, int s_dim, double s_h);
 
-
+/*
     start=clock();
     S.solve();
     end=clock();
@@ -34,4 +34,9 @@ int main(){
     S.solve_num();
     end=clock();
     cout<<scientific<<"Numerical Energy CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
+*/
+    start=clock();
+    S.langevin();
+    end=clock();
+    cout<<scientific<<"Importance Energy CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
 }
