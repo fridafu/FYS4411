@@ -36,10 +36,11 @@ public:
     // functions in class
     double PDF(mat R, double alpha_);
     void solve();// int mc=10, int N=1
+    void solve_num();
     double wavefunc(mat R, double alpha_);
-    double Elocal(double omega); // later also R
+    double energy_local(double omega); // later also R
     mat init_pos();
-    double kineticenergy(mat R, double alphanow);
+    double energy_num(mat R, double alphanow);
 private:
 };
 #endif
