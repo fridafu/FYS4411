@@ -22,6 +22,7 @@ public:
     double r;
     double r2;
     double A;
+    double B;
     double omega;
     double m;
     double f;
@@ -37,6 +38,8 @@ public:
     double PDF(mat R, double alpha_);
     void solve();// int mc=10, int N=1
     void solve_num();
+    void langevin();
+    mat F(mat R_);
     double wavefunc(mat R, double alpha_);
     double energy_local(double omega); // later also R
     mat init_pos();
