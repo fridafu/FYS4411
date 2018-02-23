@@ -34,8 +34,7 @@ void Solver::solve(){
             //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
             for(j=0;j<N;j++){
                 for(q=0;q<dim;q++){
-                    r = doubleRNG(gen) - 0.5;
-                    Rnew(j,q) = R(j,q) + r*rho;
+                    Rnew(j,q) = R(j,q) + (doubleRNG(gen) - 0.5)*rho;
                 }
 
                 A = (wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);
@@ -131,12 +130,11 @@ void Solver::solve_num(){
         double accept = 0;
 
         // iterate over MC cycles
-        for(i=0;i<mc;i++){
+        for(i=mc;i--;){
             //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
-            for(j=0;j<N;j++){
-                for(q=0;q<dim;q++){
-                    r = doubleRNG(gen) - 0.5;
-                    Rnew(j,q) = R(j,q) + r*rho;
+            for(j=N;j--;){
+                for(q=dim;q--;){
+                    Rnew(j,q) = R(j,q) + (doubleRNG(gen) - 0.5)*rho;
                 }
 
                 A = (wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);
@@ -148,8 +146,7 @@ void Solver::solve_num(){
                     accept += 1;
                 }
                 // calculate change in energy
-                double deltakinE = energy_num(R, current_alpha);
-                sumKE += deltakinE;
+                sumKE += energy_num(R, current_alpha);
                 // calculate total energy
                 }
         }
@@ -225,13 +222,12 @@ void Solver::langevin(){
         double greens;
         // iterate over MC cycles
 
-        for(i=0;i<mc;i++){
+        for(i=mc;i--;){
             //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
-            for(j=0;j<N;j++){
+            for(j=N;j--;){
                 greens = 0;
-                for(q=0;q<dim;q++){
-                    xi = gaussianRNG(gen);
-                    Rnew(j,q) = R(j,q) + D*Fq(j,q)*dt + xi*sdt;
+                for(q=dim;q--;){
+                    Rnew(j,q) = R(j,q) + D*Fq(j,q)*dt + gaussianRNG(gen)*sdt;
                     Fqnew(j,q) = -4*Rnew(j,q)*alpha;
                     greens += 0.5*(Fq(j,q) + Fqnew(j,q))* (D*dt*0.5*(Fq(j,q)-Fqnew(j,q))-Rnew(j,q)+R(j,q));
 
