@@ -14,7 +14,7 @@ int main(){
     int mc = 1000000;
     // N particles
     int numpart = 10;
-    int howmanyDs = 3;
+    int howmanyDs = 1;
     double beta = 1;
     double hbar = 1;
     double mass = 1;

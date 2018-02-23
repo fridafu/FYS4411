@@ -34,6 +34,7 @@ void Solver::solve(){
         for(i=0;i<mc;i++){
             //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
             for(j=0;j<N;j++){
+
                 for(q=0;q<dim;q++){
                     r = doubleRNG(gen) - 0.5;
                     Rnew(j,q) = R(j,q) + r*rho;
@@ -76,7 +77,7 @@ double Solver::wavefunc(mat R, double alpha_){// need R, alpha
     g = 0;
     if(dim==1){
         for(i=0;i<N;i++){
-            g += -alpha_*R(i)*R(i); // take Product of Pi(g(Ri)
+            g += -alpha_*dot(R.row(i),R.row(i)); // take Product of Pi(g(Ri)
         }
     }
     else{
@@ -131,7 +132,13 @@ double Solver::energy_real(mat R){
     }
     }
     */
-    return (0.5*omega*omega-2*alpha*alpha)*accu(R % R) + N*alpha*dim;
+    int i;
+    double r2 = 0;
+    for(i=0;i < N;i++){
+        r2 = dot(R.row(i), R.row(i));
+    }
+
+    return (0.5*omega*omega-2*alpha*alpha)*r2 + N*alpha*dim;
 }
 void Solver::solve_num(){
 
