@@ -38,7 +38,8 @@ public:
     void solve();// int mc=10, int N=1
     void solve_num();
     double wavefunc(mat R, double alpha_);
-    double energy_local(double omega); // later also R
+    double energy_local(); // later also R
+    double energy_real(mat R);
     mat init_pos();
     double energy_num(mat R, double alphanow);
 private:

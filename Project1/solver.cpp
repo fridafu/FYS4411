@@ -16,6 +16,7 @@ void Solver::solve(){
     double current_alpha;
     double energySum = 0;
     double energySquaredSum = 0;
+    double energynewSum = 0;
 
     while(num_alpha < size(alpha_vec,0)){
         current_alpha = alpha;//alpha_vec(num_alpha);
@@ -41,13 +42,14 @@ void Solver::solve(){
                 A = (wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);
                 A *= A;
                 // test if new position is more probable or if larger than random number doubleRNG(gen) in (0,1)
-                if((A > 1) || (A > doubleRNG(gen))){
+                if((A>1)||(A > doubleRNG(gen))){
                     //accept new position
                     R(j) = Rnew(j);
                     accept += 1;
                 }
                 // calculate change in energy
-                double deltaE = energy_local(omega);
+                double deltaE = energy_local();
+                energynewSum += energy_real(R);
                 energySum += deltaE;
                 energySquaredSum += deltaE*deltaE;
                 }
@@ -58,11 +60,13 @@ void Solver::solve(){
 
 
     double energy = energySum/(mc * N);
+    double newenergy = energynewSum/(mc*N);
     double totalenergy = energySum/mc;
     double energySquared = energySquaredSum/(mc * N);
 
     cout << "E_tot = " << totalenergy << endl;
     cout << "Energy: " << energy << " Energy (squared sum): " << energySquared << endl;
+    cout << "New try on Energy: " << newenergy << endl;
 
 }
 
@@ -103,8 +107,31 @@ double Solver::PDF(mat R, double alpha_){
     return pow(abs(wavefunc(R, alpha_)),2);
 }
 
-double Solver::energy_local(double omega){
+double Solver::energy_local(){
     return 0.5 * hbar * omega * N * dim;
+}
+
+double Solver::energy_real(mat R){
+
+
+    // Calculate kinetic energy by numerical derivation
+    /*
+    else{
+        for(j = 0; j < N; j++) {
+            r2 = 0;
+
+            for(q = 0; q < dim; q++) {
+                r2 += R(j,q)*R(j,q);
+
+                energy += alpha;
+        }
+            energy += -2*alpha*alpha*r2  + 0.5*omega*omega*r2;
+        //calculate potential energy
+
+    }
+    }
+    */
+    return (0.5*omega*omega-2*alpha*alpha)*accu(R % R) + N*alpha*dim;
 }
 void Solver::solve_num(){
 

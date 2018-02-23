@@ -13,4 +13,14 @@ SOURCES += solver.h
 
 LIBS += -larmadillo -llapack -lblas
 
+# remove possible other optimization flags
+
+#QMAKE_CXXFLAGS_RELEASE -= -O
+#QMAKE_CXXFLAGS_RELEASE -= -O1
+#QMAKE_CXXFLAGS_RELEASE -= -O2
+
+#QMAKE_CXXFLAGS_RELEASE -= -O2
+QMAKE_CXXFLAGS_RELEASE += -O3
+# add the desired -O3 if not present
+
 
