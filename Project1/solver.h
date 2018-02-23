@@ -18,14 +18,14 @@ public:
     double E_L;
     double alpha;
     double a_h0;
-    double g;
+    //double g;
     double r;
     double r2;
     double A;
     double B;
     double omega;
     double m;
-    double f;
+    // double f;
     double psi;
     double h;
     double h2;
@@ -41,8 +41,9 @@ public:
     void langevin();
     mat F(mat R_);
     double wavefunc(mat R, double alpha_);
-    double energy_local(double omega); // later also R
+    double energy_local(); // later also R
     mat init_pos();
+    double energy_real(mat R); // not analytical solution
     double energy_num(mat R, double alphanow);
 private:
 };
