@@ -5,7 +5,6 @@ using namespace arma;
 
 
 void Solver::solve(){
-
     random_device rd;
     mt19937 gen(rd());
     uniform_real_distribution<double> doubleRNG(0,1);
@@ -14,8 +13,8 @@ void Solver::solve(){
     int num_alpha = 0;
     vec alpha_vec = ones(1);
     double current_alpha;
-    double energySum = 0;
-    double energySquaredSum = 0;
+    //double energySum = 0;
+    //double energySquaredSum = 0;
     double newE = 0;
     while(num_alpha < size(alpha_vec,0)){
         current_alpha = alpha;//alpha_vec(num_alpha);
@@ -37,7 +36,7 @@ void Solver::solve(){
                     Rnew(j,q) = R(j,q) + (doubleRNG(gen) - 0.5)*rho;
                 }
 
-                A = (wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);
+                A = (wavefunc(Rnew,current_alpha))/wavefunc(R, current_alpha);
                 A *= A;
                 // test if new position is more probable or if larger than random number doubleRNG(gen) in (0,1)
                 if((A > 1) || (A > doubleRNG(gen))){
@@ -183,11 +182,14 @@ double Solver::energy_num(mat R, double alphanow){
     double r2 = 0;
     // Calculate kinetic energy by numerical derivation
     Rplus = Rminus = R;
+    Rplus += h;
+    Rminus -= h;
+    //Rminus.for_each( []mat::elem_type& val) { val -= h; } );
     for(int j = 0; j < N; j++) {
         r2 = 0;
         for(int q = 0; q < dim; q++) {
-            Rplus(j,q) += h;
-            Rminus(j,q) -= h;
+            //Rplus(j,q) += h;
+            //Rminus(j,q) -= h;
             r2 += R(j,q)*R(j,q);
         }
         //calculate potential energy
@@ -208,7 +210,6 @@ void Solver::langevin(){
     mt19937 gen(rd());
     normal_distribution<double> gaussianRNG(0.,0.5);
     uniform_real_distribution<double> doubleRNG(0,1);
-
 
     // loop over alpha when we try out
     int num_alpha = 0;
@@ -240,7 +241,6 @@ void Solver::langevin(){
                     Rnew(j,q) = R(j,q) + D*Fq(j,q)*dt + gaussianRNG(gen)*sdt;
                     Fqnew(j,q) = -4*Rnew(j,q)*alpha;
                     greens += 0.5*(Fq(j,q) + Fqnew(j,q))* (D*dt*0.5*(Fq(j,q)-Fqnew(j,q))-Rnew(j,q)+R(j,q));
-
                 }
                 greens = exp(greens);
                 A = greens*(wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);
@@ -261,7 +261,6 @@ void Solver::langevin(){
         num_alpha += 1;
         cout << "accept FOKKER " << accept/(mc*N) << endl;
     }
-
     cout << "sumKE+Vext FOKKER (should be equal to Energy) " << sumKE/(N*mc) << endl;
 
 }
