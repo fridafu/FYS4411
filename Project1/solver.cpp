@@ -63,7 +63,7 @@ void Solver::solve(){
     double energy = energy_local();
     //cout << "E_tot = " << totalenergy << endl;
     cout << "Energy: " << energy << endl; //" Energy (squared sum): " << energySquared << endl;
-    cout << "New energy: " << newE/(mc*N) << endl;
+    cout << "New energy: " << newE/double(mc*N) << endl;
 
 }
 
@@ -107,6 +107,7 @@ double Solver::PDF(mat R, double alpha_){
 double Solver::energy_local(){
     return 0.5 * hbar * omega * N * dim;
 }
+
 void Solver::solve_num(){
 
     random_device rd;
@@ -165,11 +166,11 @@ mat Solver::F(mat R_){
 
 double Solver::energy_real(mat R){
     int i;
-    double energy = 0;
+    double e = 0;
     for(i = 0; i < N; i++){
-        energy += (0.5*omega*omega - 2*alpha*alpha)*dot(R.row(i),R.row(i)) + alpha*dim;
+        e += (0.5*omega*omega - 2*alpha*alpha)*dot(R.row(i),R.row(i)) + alpha*dim;
     }
-    return energy;
+    return e;
 }
 
 double Solver::energy_num(mat R, double alphanow){

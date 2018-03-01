@@ -11,7 +11,7 @@ int main(){
     double alpha = 0.5;
     double rho = 0.7;
     // monte carlo cycles
-    int mc = 1000000;
+    int mc = 100;
     // N particles
     int numpart = 10;
     int howmanyDs = 3;
