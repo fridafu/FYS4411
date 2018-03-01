@@ -5,7 +5,6 @@ using namespace arma;
 
 
 void Solver::solve(){
-
     random_device rd;
     mt19937 gen(rd());
     uniform_real_distribution<double> doubleRNG(0,1);
@@ -14,9 +13,9 @@ void Solver::solve(){
     int num_alpha = 0;
     vec alpha_vec = ones(1);
     double current_alpha;
-    double energySum = 0;
-    double energySquaredSum = 0;
-
+    //double energySum = 0;
+    //double energySquaredSum = 0;
+    double newE = 0;
     while(num_alpha < size(alpha_vec,0)){
         current_alpha = alpha;//alpha_vec(num_alpha);
         // initialize random positions
@@ -37,7 +36,7 @@ void Solver::solve(){
                     Rnew(j,q) = R(j,q) + (doubleRNG(gen) - 0.5)*rho;
                 }
 
-                A = (wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);
+                A = (wavefunc(Rnew,current_alpha))/wavefunc(R, current_alpha);
                 A *= A;
                 // test if new position is more probable or if larger than random number doubleRNG(gen) in (0,1)
                 if((A > 1) || (A > doubleRNG(gen))){
@@ -46,29 +45,32 @@ void Solver::solve(){
                     accept += 1;
                 }
                 // calculate change in energy
-                double deltaE = energy_local(omega);
-                energySum += deltaE;
-                energySquaredSum += deltaE*deltaE;
+                //double deltaE = energy_local();
+                newE += energy_real(R);
+                //energySum += deltaE;
+                //energySquaredSum += deltaE*deltaE;
                 }
         }
         num_alpha += 1;
         cout << "accept " << accept/(mc*N) << endl;
     }
 
-
+    /*
     double energy = energySum/(mc * N);
     double totalenergy = energySum/mc;
     double energySquared = energySquaredSum/(mc * N);
-
-    cout << "E_tot = " << totalenergy << endl;
-    cout << "Energy: " << energy << " Energy (squared sum): " << energySquared << endl;
+    */
+    double energy = energy_local();
+    //cout << "E_tot = " << totalenergy << endl;
+    cout << "Energy: " << energy << endl; //" Energy (squared sum): " << energySquared << endl;
+    cout << "New energy: " << newE/(mc*N) << endl;
 
 }
 
 double Solver::wavefunc(mat R, double alpha_){// need R, alpha
     //bool interact = y/n
     int i;
-    g = 0;
+    double g = 0;
     if(dim==1){
         for(i=0;i<N;i++){
             g += -alpha_*R(i)*R(i); // take Product of Pi(g(Ri)
@@ -79,7 +81,7 @@ double Solver::wavefunc(mat R, double alpha_){// need R, alpha
             g += -alpha_*dot(R.row(i),R.row(i));
         }
     }
-    f = 1; //no interaction here!!
+    double f = 1; //no interaction here!!
     psi = exp(g)*f;
     return psi;
 }
@@ -102,7 +104,7 @@ double Solver::PDF(mat R, double alpha_){
     return pow(abs(wavefunc(R, alpha_)),2);
 }
 
-double Solver::energy_local(double omega){
+double Solver::energy_local(){
     return 0.5 * hbar * omega * N * dim;
 }
 void Solver::solve_num(){
@@ -161,7 +163,14 @@ mat Solver::F(mat R_){
     return -4*R_*alpha;
 }
 
-
+double Solver::energy_real(mat R){
+    int i;
+    double energy = 0;
+    for(i = 0; i < N; i++){
+        energy += (0.5*omega*omega - 2*alpha*alpha)*dot(R.row(i),R.row(i)) + alpha*dim;
+    }
+    return energy;
+}
 
 double Solver::energy_num(mat R, double alphanow){
     double wavefuncnow = wavefunc(R, alphanow);
@@ -173,11 +182,14 @@ double Solver::energy_num(mat R, double alphanow){
     double r2 = 0;
     // Calculate kinetic energy by numerical derivation
     Rplus = Rminus = R;
+    Rplus += h;
+    Rminus -= h;
+    //Rminus.for_each( []mat::elem_type& val) { val -= h; } );
     for(int j = 0; j < N; j++) {
         r2 = 0;
         for(int q = 0; q < dim; q++) {
-            Rplus(j,q) += h;
-            Rminus(j,q) -= h;
+            //Rplus(j,q) += h;
+            //Rminus(j,q) -= h;
             r2 += R(j,q)*R(j,q);
         }
         //calculate potential energy
@@ -193,12 +205,11 @@ double Solver::energy_num(mat R, double alphanow){
 void Solver::langevin(){
     double D = 0.5; //diffusion coefficient
     double dt = 0.01; //time step
-    double xi;
+
     random_device rd;
     mt19937 gen(rd());
     normal_distribution<double> gaussianRNG(0.,0.5);
     uniform_real_distribution<double> doubleRNG(0,1);
-
 
     // loop over alpha when we try out
     int num_alpha = 0;
@@ -230,7 +241,6 @@ void Solver::langevin(){
                     Rnew(j,q) = R(j,q) + D*Fq(j,q)*dt + gaussianRNG(gen)*sdt;
                     Fqnew(j,q) = -4*Rnew(j,q)*alpha;
                     greens += 0.5*(Fq(j,q) + Fqnew(j,q))* (D*dt*0.5*(Fq(j,q)-Fqnew(j,q))-Rnew(j,q)+R(j,q));
-
                 }
                 greens = exp(greens);
                 A = greens*(wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);
@@ -251,7 +261,6 @@ void Solver::langevin(){
         num_alpha += 1;
         cout << "accept FOKKER " << accept/(mc*N) << endl;
     }
-
     cout << "sumKE+Vext FOKKER (should be equal to Energy) " << sumKE/(N*mc) << endl;
 
 }
