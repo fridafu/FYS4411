@@ -36,15 +36,16 @@ public:
     double rho; //position update parameter
     // functions in class
     double PDF(mat R, double alpha_);
-    void solve();// int mc=10, int N=1
-    void solve_num();
-    void langevin();
+    void solve(std::ofstream &myfile);// int mc=10, int N=1
+    void solve_num(std::ofstream &myfile);
+    void langevin(std::ofstream &myfile);
     mat F(mat R_);
     double wavefunc(mat R, double alpha_);
     double energy_local(); // later also R
     mat init_pos();
     double energy_real(mat R); // not analytical solution
     double energy_num(mat R, double alphanow);
+    clock_t start, end;
 private:
 };
 #endif
