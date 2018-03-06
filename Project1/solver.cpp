@@ -4,11 +4,15 @@
 using namespace arma;
 
 
-void Solver::solve(){
+void Solver::solve( std::ofstream &myfile){
+    myfile << "dim = " << dim << ", N = " << N << ". and mc = " << mc << endl << endl;
+    double energy = energy_local();
+    myfile << scientific << "Theoretical Energy = " << energy << endl << endl;
+    myfile << "Brute force:" << endl;
+    start=clock();
     random_device rd;
     mt19937 gen(rd());
     uniform_real_distribution<double> doubleRNG(0,1);
-
     // loop over alpha when we try out
     int num_alpha = 0;
     vec alpha_vec = ones(1);
@@ -51,8 +55,10 @@ void Solver::solve(){
                 //energySquaredSum += deltaE*deltaE;
                 }
         }
+
         num_alpha += 1;
-        cout << "accept " << accept/(mc*N) << endl;
+        myfile << scientific << "Acceptance = " << accept/(mc*N) << endl;
+        cout << "Brute force finished! Hang in there <3" << endl;
     }
 
     /*
@@ -60,11 +66,9 @@ void Solver::solve(){
     double totalenergy = energySum/mc;
     double energySquared = energySquaredSum/(mc * N);
     */
-    double energy = energy_local();
-    //cout << "E_tot = " << totalenergy << endl;
-    cout << "Energy: " << energy << endl; //" Energy (squared sum): " << energySquared << endl;
-    cout << "New energy: " << newE/(mc*N) << endl;
-
+    end=clock();
+    myfile << scientific << "Calculated energy =  " << newE/(mc*N) << endl;
+    myfile<< scientific <<"Brute Force CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
 }
 
 double Solver::wavefunc(mat R, double alpha_){// need R, alpha
@@ -107,11 +111,12 @@ double Solver::PDF(mat R, double alpha_){
 double Solver::energy_local(){
     return 0.5 * hbar * omega * N * dim;
 }
-void Solver::solve_num(){
-
+void Solver::solve_num( std::ofstream &myfile){
     random_device rd;
     mt19937 gen(rd());
     uniform_real_distribution<double> doubleRNG(0,1);
+    myfile << endl << "Numerical derivation of kinetic energy:" << endl;
+    start=clock();
 
     // loop over alpha when we try out
     int num_alpha = 0;
@@ -153,10 +158,13 @@ void Solver::solve_num(){
                 }
         }
         num_alpha += 1;
-        cout << "accept " << accept/(mc*N) << endl;
+        myfile << "Acceptance =" << accept/(mc*N) << endl;
     }
 
-    cout << "sumKE+Vext (should be equal to Energy) " << sumKE/(N*mc) << endl;
+    myfile << scientific << "Kinetic Energy = " << sumKE/(N*mc) << endl;
+    end=clock();
+    myfile<<scientific<<"Num dev CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
+    cout << "Numerical energy finished! One to go!!!" << endl;
 }
 
 mat Solver::F(mat R_){
@@ -182,14 +190,14 @@ double Solver::energy_num(mat R, double alphanow){
     double r2 = 0;
     // Calculate kinetic energy by numerical derivation
     Rplus = Rminus = R;
-    Rplus += h;
-    Rminus -= h;
+    //Rplus += h;
+    //Rminus -= h;
     //Rminus.for_each( []mat::elem_type& val) { val -= h; } );
     for(int j = 0; j < N; j++) {
         r2 = 0;
         for(int q = 0; q < dim; q++) {
-            //Rplus(j,q) += h;
-            //Rminus(j,q) -= h;
+            Rplus(j,q) += h;
+            Rminus(j,q) -= h;
             r2 += R(j,q)*R(j,q);
         }
         //calculate potential energy
@@ -202,7 +210,9 @@ double Solver::energy_num(mat R, double alphanow){
     return Ek + Vext;
 }
 
-void Solver::langevin(){
+void Solver::langevin( std::ofstream &myfile){
+    myfile << endl << "Importance Sampling:" << endl;
+    start=clock();
     double D = 0.5; //diffusion coefficient
     double dt = 0.01; //time step
 
@@ -259,10 +269,12 @@ void Solver::langevin(){
                 }
         }
         num_alpha += 1;
-        cout << "accept FOKKER " << accept/(mc*N) << endl;
+        myfile << scientific << "Acceptance = " << accept/(mc*N) << endl;
     }
-    cout << "sumKE+Vext FOKKER (should be equal to Energy) " << sumKE/(N*mc) << endl;
-
+    myfile <<scientific << "Kinetic Energy = " << sumKE/(N*mc) << endl;
+    end=clock();
+    myfile<<scientific<<"Importance sampling CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
+    cout << "Langevin and all are finished! Yay." << endl;
 }
 
 Solver::Solver(double s_beta, double s_hbar, double mass, double s_omega, double s_alpha, double s_rho, int s_mc, int s_N, int s_dim, double s_h){

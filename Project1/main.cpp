@@ -7,14 +7,13 @@ using namespace arma;
 
 
 int main(){
-    clock_t start, end;
     double alpha = 0.5;
     double rho = 0.7;
     // monte carlo cycles
     int mc = 1000000;
     // N particles
-    int numpart = 10;
-    int howmanyDs = 3;
+    int numpart = 100;
+    int howmanyDs = 1;
     double beta = 1;
     double hbar = 1;
     double mass = 1;
@@ -23,20 +22,13 @@ int main(){
     // initialize Solver class
     Solver S(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h);
     //Solver(double s_beta, double s_hbar, double mass, double s_omega, double s_alpha, double s_rho, int s_mc, int s_N, int s_dim, double s_h);
+    ofstream myfile;
 
+    /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+    myfile.open("dim1_n100.dat");
+    S.solve(myfile);
+    S.solve_num(myfile);
+    S.langevin(myfile);
+    myfile.close();
 
-    start=clock();
-    S.solve();
-    end=clock();
-
-    cout<<scientific<<"Local Energy CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
-    start=clock();
-    S.solve_num();
-    end=clock();
-    cout<<scientific<<"Numerical Energy CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
-
-    start=clock();
-    S.langevin();
-    end=clock();
-    cout<<scientific<<"Importance Energy CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
 }
