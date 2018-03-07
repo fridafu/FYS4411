@@ -42,11 +42,15 @@ void Solver::solve( std::ofstream &myfile){
 
                 A = (wavefunc(Rnew,current_alpha))/wavefunc(R, current_alpha);
                 A *= A;
+                // cout << A << endl;
+
                 // test if new position is more probable or if larger than random number doubleRNG(gen) in (0,1)
                 if((A > 1) || (A > doubleRNG(gen))){
                     //accept new position
                     R(j) = Rnew(j);
                     accept += 1;
+                } else {
+                    Rnew(j) = R(j);
                 }
                 // calculate change in energy
                 //double deltaE = energy_local();
@@ -71,7 +75,7 @@ void Solver::solve( std::ofstream &myfile){
     myfile<< scientific <<"Brute Force CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
 }
 
-double Solver::wavefunc(mat R, double alpha_){// need R, alpha
+double Solver::wavefunc(mat &R, double alpha_){// need R, alpha
     //bool interact = y/n
     int i;
     double g = 0;
@@ -104,7 +108,7 @@ mat Solver::init_pos(){
     return position;
 }
 
-double Solver::PDF(mat R, double alpha_){
+double Solver::PDF(mat &R, double alpha_){
     return pow(abs(wavefunc(R, alpha_)),2);
 }
 
@@ -145,12 +149,15 @@ void Solver::solve_num( std::ofstream &myfile){
                 }
 
                 A = (wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);
+
                 A *= A;
                 // test if new position is more probable or if larger than random number doubleRNG(gen) in (0,1)
                 if((A > 1) || (A > doubleRNG(gen))){
                     //accept new position
                     R(j) = Rnew(j);
                     accept += 1;
+                }else {
+                    Rnew(j) = R(j);
                 }
                 // calculate change in energy
                 sumKE += energy_num(R, current_alpha);
@@ -167,11 +174,11 @@ void Solver::solve_num( std::ofstream &myfile){
     cout << "Numerical energy finished! One to go!!!" << endl;
 }
 
-mat Solver::F(mat R_){
+mat Solver::F(mat &R_){
     return -4*R_*alpha;
 }
 
-double Solver::energy_real(mat R){
+double Solver::energy_real(mat &R){
     int i;
     double energy = 0;
     for(i = 0; i < N; i++){
@@ -180,7 +187,7 @@ double Solver::energy_real(mat R){
     return energy;
 }
 
-double Solver::energy_num(mat R, double alphanow){
+double Solver::energy_num(mat &R, double alphanow){
     double wavefuncnow = wavefunc(R, alphanow);
 
     mat Rplus;
@@ -261,6 +268,9 @@ void Solver::langevin( std::ofstream &myfile){
                     R(j) = Rnew(j);
                     Fq(j) = Fqnew(j);
                     accept += 1;
+                }else {
+                    Rnew(j) = R(j);
+                    Fqnew(j) = Fq(j);
                 }
                 // calculate change in energy
                 double deltakinE = energy_num(R, current_alpha);
