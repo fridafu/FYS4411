@@ -10,9 +10,9 @@ int main(){
     double alpha = 0.5;
     double rho = 0.7;
     // monte carlo cycles
-    int mc = 1000000;
+    int mc = 10000;
     // N particles
-    int numpart = 100;
+    int numpart = 100; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
     int howmanyDs = 1;
     double beta = 1;
     double hbar = 1;
@@ -25,7 +25,7 @@ int main(){
     ofstream myfile;
 
     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-    myfile.open("dim1_n100.dat");
+    myfile.open("balle.dat");
     S.solve(myfile);
     S.solve_num(myfile);
     S.langevin(myfile);
