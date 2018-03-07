@@ -77,21 +77,29 @@ void Solver::solve( std::ofstream &myfile){
 
 double Solver::wavefunc(mat &R, double alpha_){// need R, alpha
     //bool interact = y/n
-    int i;
+    int i; int j;
     double g = 0;
+    /*
+    for(i=0;i<N;i++){
+        for(j=0;j<dim;j++){
+            g += R(i,j)*R(i,j);
+        }
+    }
+    */
     if(dim==1){
         for(i=0;i<N;i++){
-            g += -alpha_*R(i)*R(i); // take Product of Pi(g(Ri)
+            g += R(i)*R(i); // take Product of Pi(g(Ri)
         }
     }
     else{
         for(i=0;i<N;i++){
-            g += -alpha_*dot(R.row(i),R.row(i));
+            g += dot(R.row(i),R.row(i));
         }
     }
+
     double f = 1; //no interaction here!!
-    psi = exp(g)*f;
-    return psi;
+    //psi = exp(-alpha_*g)*f;
+    return exp(-alpha_*g)*f;
 }
 
 mat Solver::init_pos(){
@@ -135,9 +143,7 @@ void Solver::solve_num( std::ofstream &myfile){
         mat Rnew = R;
         int i; int j; int q;
 
-        //initialize expectation values
-        mat Rplus = zeros(N,dim);
-        mat Rminus = zeros(N,dim);
+
         double accept = 0;
 
         // iterate over MC cycles
@@ -151,6 +157,7 @@ void Solver::solve_num( std::ofstream &myfile){
                 A = (wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);
 
                 A *= A;
+                cout << A << endl;
                 // test if new position is more probable or if larger than random number doubleRNG(gen) in (0,1)
                 if((A > 1) || (A > doubleRNG(gen))){
                     //accept new position
@@ -180,41 +187,47 @@ mat Solver::F(mat &R_){
 
 double Solver::energy_real(mat &R){
     int i;
+    int j;
     double energy = 0;
+    double c1 = (0.5*omega*omega - 2*alpha*alpha);
+    double c2 = alpha*dim;
     for(i = 0; i < N; i++){
-        energy += (0.5*omega*omega - 2*alpha*alpha)*dot(R.row(i),R.row(i)) + alpha*dim;
+        r2 = 0;
+        for(int j = 0; j < dim; j++) {
+            r2 += R(i,j)*R(i,j);
+        }
+        energy += c1*r2 + c2;
     }
     return energy;
 }
 
 double Solver::energy_num(mat &R, double alphanow){
     double wavefuncnow = wavefunc(R, alphanow);
-
-    mat Rplus;
-    mat Rminus;
     double Ek = 0;
     double Vext = 0;
-    double r2 = 0;
+    //vec r2;
     // Calculate kinetic energy by numerical derivation
-    Rplus = Rminus = R;
-    //Rplus += h;
-    //Rminus -= h;
+
+    mat Rplus = R + h;
+    mat Rminus = R - h;
+    //double c = 0.5*m*omega*omega;
     //Rminus.for_each( []mat::elem_type& val) { val -= h; } );
     for(int j = 0; j < N; j++) {
-        r2 = 0;
-        for(int q = 0; q < dim; q++) {
-            Rplus(j,q) += h;
-            Rminus(j,q) -= h;
-            r2 += R(j,q)*R(j,q);
-        }
+        //r2 = 0;
+        //r2 = R.row(j);
+        Vext += dot(R.row(j),R.row(j));
+        /*for(int q = 0; q < dim; q++) {
+            Vext += R(j,q)*R(j,q);
+        }*/
         //calculate potential energy
-        Vext += 0.5*m*omega*omega*r2;
+        //Vext += 0.5*m*omega*omega*dot(R.row(j),R.row(j));
+        //Vext += r2;
     }
     wavefuncplus = wavefunc(Rplus, alphanow);
     wavefuncminus = wavefunc(Rminus, alphanow);
     Ek -= (wavefuncplus+wavefuncminus - 2*wavefuncnow);
     Ek = 0.5 * Ek * h2 / wavefuncnow;
-    return Ek + Vext;
+    return Ek + 0.5*m*omega*omega*Vext;
 }
 
 void Solver::langevin( std::ofstream &myfile){
@@ -241,23 +254,23 @@ void Solver::langevin( std::ofstream &myfile){
         mat Rnew = R;
         int i; int j; int q;
         mat Fq = F(R);
-        //initialize expectation values
-        mat Rplus = zeros(N,dim);
-        mat Rminus = zeros(N,dim);
-        double accept = 0;
         mat Fqnew = Fq;
 
+        double accept = 0;
         double greens;
-        // iterate over MC cycles
 
+        double fouralpha = -4*alpha;
+        double Ddt = D*dt;
+        double Ddthalf = 0.5*Ddt;
+        // iterate over MC cycles
         for(i=mc;i--;){
             //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
             for(j=N;j--;){
                 greens = 0;
                 for(q=dim;q--;){
-                    Rnew(j,q) = R(j,q) + D*Fq(j,q)*dt + gaussianRNG(gen)*sdt;
-                    Fqnew(j,q) = -4*Rnew(j,q)*alpha;
-                    greens += 0.5*(Fq(j,q) + Fqnew(j,q))* (D*dt*0.5*(Fq(j,q)-Fqnew(j,q))-Rnew(j,q)+R(j,q));
+                    Rnew(j,q) = R(j,q) + Ddt*Fq(j,q) + gaussianRNG(gen)*sdt;
+                    Fqnew(j,q) = fouralpha*Rnew(j,q);
+                    greens += 0.5*(Fq(j,q) + Fqnew(j,q))* (Ddthalf*(Fq(j,q)-Fqnew(j,q))-Rnew(j,q)+R(j,q));
                 }
                 greens = exp(greens);
                 A = greens*(wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);
