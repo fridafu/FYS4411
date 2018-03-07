@@ -142,8 +142,6 @@ void Solver::solve_num( std::ofstream &myfile){
         mat R = init_pos();
         mat Rnew = R;
         int i; int j; int q;
-
-
         double accept = 0;
 
         // iterate over MC cycles
