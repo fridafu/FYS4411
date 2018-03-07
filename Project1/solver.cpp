@@ -1,6 +1,6 @@
 #include "armadillo"
 #include "solver.h"
-
+#include <iomanip>
 using namespace arma;
 
 
@@ -63,7 +63,7 @@ void Solver::solve(){
     double energy = energy_local();
     //cout << "E_tot = " << totalenergy << endl;
     cout << "Energy: " << energy << endl; //" Energy (squared sum): " << energySquared << endl;
-    cout << "New energy: " << newE/double(mc*N) << endl;
+    cout << setprecision(10) << "New energy: " << newE/double(mc*N) << endl;
 
 }
 
