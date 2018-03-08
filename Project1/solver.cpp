@@ -222,7 +222,9 @@ void Solver::langevin( std::ofstream &myfile){
     myfile << endl << "Importance Sampling:" << endl;
     start=clock();
     double D = 0.5; //diffusion coefficient
-    double dt = 0.01; //time step
+    double dt = 0.001; //time step
+    double Ddt = D*dt;
+    double Ddt05 = Ddt*0.5;
 
     random_device rd;
     mt19937 gen(rd());
@@ -235,6 +237,7 @@ void Solver::langevin( std::ofstream &myfile){
     double current_alpha;
     double sumKE = 0;
     double sdt = sqrt(dt);
+    double alpha4 = alpha*(-4);
     while(num_alpha < size(alpha_vec,0)){
         current_alpha = alpha;//alpha_vec(num_alpha);
         // initialize random positions
@@ -247,18 +250,17 @@ void Solver::langevin( std::ofstream &myfile){
         mat Rminus = zeros(N,dim);
         double accept = 0;
         mat Fqnew = Fq;
-
         double greens;
         // iterate over MC cycles
 
-        for(i=mc;i--;){
+        for(i=0;i<mc;i++){
             //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
-            for(j=N;j--;){
+            for(j=0;j<N;j++){
                 greens = 0;
-                for(q=dim;q--;){
-                    Rnew(j,q) = R(j,q) + D*Fq(j,q)*dt + gaussianRNG(gen)*sdt;
-                    Fqnew(j,q) = -4*Rnew(j,q)*alpha;
-                    greens += 0.5*(Fq(j,q) + Fqnew(j,q))* (D*dt*0.5*(Fq(j,q)-Fqnew(j,q))-Rnew(j,q)+R(j,q));
+                for(q=0;q<dim;q++){
+                    Rnew(j,q) = R(j,q) + Ddt*Fq(j,q) + gaussianRNG(gen)*sdt;
+                    Fqnew(j,q) = alpha4*Rnew(j,q);
+                    greens += 0.5*(Fq(j,q) + Fqnew(j,q))*(Ddt05*(Fq(j,q)-Fqnew(j,q))-Rnew(j,q)+R(j,q));
                 }
                 greens = exp(greens);
                 A = greens*(wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);

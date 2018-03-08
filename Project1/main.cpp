@@ -8,9 +8,9 @@ using namespace arma;
 
 int main(){
     double alpha = 0.5;
-    double rho = 0.7;
+    double rho = 0.1;
     // monte carlo cycles
-    int mc = 10000000;
+    int mc = 1000000;
     // N particles
     int numpart = 100; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
     int howmanyDs = 3;
@@ -25,9 +25,9 @@ int main(){
     ofstream myfile;
 
     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-    myfile.open("Vext4.dat");
-    S.solve(myfile);
-    S.solve_num(myfile);
+    myfile.open("balle.dat");
+    //S.solve(myfile);
+    //S.solve_num(myfile);
     S.langevin(myfile);
     myfile.close();
 
