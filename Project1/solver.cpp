@@ -77,20 +77,21 @@ void Solver::solve( std::ofstream &myfile){
 
 double Solver::wavefunc(mat &R, double alpha_){// need R, alpha
     //bool interact = y/n
-    int i;
+    int i; int j;
     double g = 0;
     if(dim==1){
         for(i=0;i<N;i++){
-            g += -alpha_*R(i)*R(i); // take Product of Pi(g(Ri)
+            g += R(i)*R(i); // take Product of Pi(g(Ri)
         }
-    }
-    else{
+    } else{
         for(i=0;i<N;i++){
-            g += -alpha_*dot(R.row(i),R.row(i));
+            for(j=0;j<dim;j++){
+                g += R(i,j)*R(i,j);//g += dot(R.row(i),R.row(i));
+            }
         }
     }
     double f = 1; //no interaction here!!
-    psi = exp(g)*f;
+    psi = exp(-alpha_*g)*f;
     return psi;
 }
 
@@ -178,37 +179,37 @@ mat Solver::F(mat &R_){
     return -4*R_*alpha;
 }
 
-double Solver::energy_real(mat &R){
-    int i;
+double Solver::energy_real(mat &R){ //done optimization
+    int i; int j;
     double energy = 0;
     for(i = 0; i < N; i++){
-        energy += (0.5*omega*omega - 2*alpha*alpha)*dot(R.row(i),R.row(i)) + alpha*dim;
+        for(j = 0; j < dim; j++){
+            energy += R(i,j)*R(i,j);
+        }
     }
-    return energy;
+    return (0.5*omega*omega - 2*alpha*alpha)*energy + alpha*dim*N;
 }
 
 double Solver::energy_num(mat &R, double alphanow){
     double wavefuncnow = wavefunc(R, alphanow);
 
-    mat Rplus;
-    mat Rminus;
     double Ek = 0;
     double Vext = 0;
     double r2 = 0;
     // Calculate kinetic energy by numerical derivation
-    Rplus = Rminus = R;
-    //Rplus += h;
-    //Rminus -= h;
-    //Rminus.for_each( []mat::elem_type& val) { val -= h; } );
+    mat Rplus = R + h;
+    mat Rminus = R - h;
+    double c = 0.5*m*omega*omega;
     for(int j = 0; j < N; j++) {
         r2 = 0;
         for(int q = 0; q < dim; q++) {
-            Rplus(j,q) += h;
-            Rminus(j,q) -= h;
+            //Rplus(j,q) += h;
+            //Rminus(j,q) -= h;
             r2 += R(j,q)*R(j,q);
+            //Vext += R(j,q)*R(j,q);
         }
         //calculate potential energy
-        Vext += 0.5*m*omega*omega*r2;
+        Vext += c*r2;
     }
     wavefuncplus = wavefunc(Rplus, alphanow);
     wavefuncminus = wavefunc(Rminus, alphanow);
