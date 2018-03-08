@@ -222,7 +222,7 @@ void Solver::langevin( std::ofstream &myfile){
     myfile << endl << "Importance Sampling:" << endl;
     start=clock();
     double D = 0.5; //diffusion coefficient
-    double dt = 0.001; //time step
+
     double Ddt = D*dt;
     double Ddt05 = Ddt*0.5;
 
@@ -257,10 +257,12 @@ void Solver::langevin( std::ofstream &myfile){
             //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
             for(j=0;j<N;j++){
                 greens = 0;
+
                 for(q=0;q<dim;q++){
                     Rnew(j,q) = R(j,q) + Ddt*Fq(j,q) + gaussianRNG(gen)*sdt;
                     Fqnew(j,q) = alpha4*Rnew(j,q);
                     greens += 0.5*(Fq(j,q) + Fqnew(j,q))*(Ddt05*(Fq(j,q)-Fqnew(j,q))-Rnew(j,q)+R(j,q));
+
                 }
                 greens = exp(greens);
                 A = greens*(wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);
@@ -290,7 +292,7 @@ void Solver::langevin( std::ofstream &myfile){
     cout << "Langevin and all are finished! Yay." << endl;
 }
 
-Solver::Solver(double s_beta, double s_hbar, double mass, double s_omega, double s_alpha, double s_rho, int s_mc, int s_N, int s_dim, double s_h){
+Solver::Solver(double s_beta, double s_hbar, double mass, double s_omega, double s_alpha, double s_rho, int s_mc, int s_N, int s_dim, double s_h, double s_dt){
     beta = s_beta;
     hbar = s_hbar;
     m = mass;
@@ -303,4 +305,5 @@ Solver::Solver(double s_beta, double s_hbar, double mass, double s_omega, double
     dim = s_dim;
     h = s_h;
     h2 = 1.0/(h*h);
+    dt = s_dt;
 }

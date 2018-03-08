@@ -8,7 +8,10 @@ using namespace arma;
 
 int main(){
     double alpha = 0.5;
+
     double rho = 0.1;
+    double dt = 0.001;
+
     // monte carlo cycles
     int mc = 1000000;
     // N particles
@@ -20,7 +23,7 @@ int main(){
     double omega = 1;
     double h = 1e-8;
     // initialize Solver class
-    Solver S(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h);
+    Solver S(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
     //Solver(double s_beta, double s_hbar, double mass, double s_omega, double s_alpha, double s_rho, int s_mc, int s_N, int s_dim, double s_h);
     ofstream myfile;
 
