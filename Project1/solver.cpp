@@ -222,7 +222,7 @@ void Solver::langevin( std::ofstream &myfile){
     myfile << endl << "Importance Sampling:" << endl;
     start=clock();
     double D = 0.5; //diffusion coefficient
-    double dt = 0.01; //time step
+    //double dt = 0.01; //time step
 
     random_device rd;
     mt19937 gen(rd());
@@ -258,7 +258,7 @@ void Solver::langevin( std::ofstream &myfile){
                 for(q=dim;q--;){
                     Rnew(j,q) = R(j,q) + D*Fq(j,q)*dt + gaussianRNG(gen)*sdt;
                     Fqnew(j,q) = -4*Rnew(j,q)*alpha;
-                    greens += 0.5*(Fq(j,q) + Fqnew(j,q))* (D*dt*0.5*(Fq(j,q)-Fqnew(j,q))-Rnew(j,q)+R(j,q));
+                    greens += 0.5*(Fq(j,q) + Fqnew(j,q))*(D*dt*0.5*(Fq(j,q)-Fqnew(j,q))-Rnew(j,q)+R(j,q));
                 }
                 greens = exp(greens);
                 A = greens*(wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);
@@ -288,7 +288,7 @@ void Solver::langevin( std::ofstream &myfile){
     cout << "Langevin and all are finished! Yay." << endl;
 }
 
-Solver::Solver(double s_beta, double s_hbar, double mass, double s_omega, double s_alpha, double s_rho, int s_mc, int s_N, int s_dim, double s_h){
+Solver::Solver(double s_beta, double s_hbar, double mass, double s_omega, double s_alpha, double s_rho, int s_mc, int s_N, int s_dim, double s_h, double s_dt){
     beta = s_beta;
     hbar = s_hbar;
     m = mass;
@@ -301,4 +301,5 @@ Solver::Solver(double s_beta, double s_hbar, double mass, double s_omega, double
     dim = s_dim;
     h = s_h;
     h2 = 1.0/(h*h);
+    dt = s_dt;
 }
