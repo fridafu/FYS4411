@@ -5,6 +5,7 @@
 #include <fstream>
 #include <random>
 #include "armadillo"
+#include <cmath>
 using namespace std;
 using namespace arma;
 
@@ -14,24 +15,17 @@ public:
     double beta;
     double hbar;
     int N; //number of particles
-    mat R;
     double E_L;
     double alpha;
     double a_h0;
     //double g;
-    double r;
-    double r2;
-    double A;
     double B;
     double omega;
     double m;
-    // double f;
-    double psi;
     double h;
     double h2;
     double dt;
-    double wavefuncplus;
-    double wavefuncminus;
+
     int mc; //num MC cycles
     int dim;
     double rho; //position update parameter
