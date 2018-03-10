@@ -1,5 +1,5 @@
 # FYS4411
-- [ ] *"Fikse dette her"* - Frida Furmyr
+- [ ] *"Fikse dette her"* - Frida Furmyr om hvordan importance sampling går at skogen ved å kjøre brute force først
 - [ ] Do timing of b) multiple times to get average
 - [ ] Do dt measurements in c)
 - [ ] Finish expression in a)
