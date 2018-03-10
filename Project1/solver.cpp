@@ -75,18 +75,18 @@ void Solver::solve( std::ofstream &myfile){
     myfile<< scientific <<"Brute Force CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
 }
 
-double Solver::wavefunc(mat &R, double alpha_){// need R, alpha
+double Solver::wavefunc(mat &R1, double alpha_){// need R, alpha
     //bool interact = y/n
     int i; int j;
     double g = 0;
     if(dim==1){
         for(i=0;i<N;i++){
-            g += R(i)*R(i); // take Product of Pi(g(Ri)
+            g += R1[i]*R1[i]; // take Product of Pi(g(Ri)
         }
     } else{
         for(i=0;i<N;i++){
-            for(j=0;j<dim;j++){
-                g += R(i,j)*R(i,j);//g += dot(R.row(i),R.row(i));
+            for(j = 0; j < dim;j++){
+                g += R1[i,j]*R1[i,j];//g += dot(R.row(i),R.row(i));
             }
         }
     }
@@ -116,6 +116,7 @@ double Solver::PDF(mat &R, double alpha_){
 double Solver::energy_local(){
     return 0.5 * hbar * omega * N * dim;
 }
+
 void Solver::solve_num( std::ofstream &myfile){
     random_device rd;
     mt19937 gen(rd());
@@ -146,7 +147,7 @@ void Solver::solve_num( std::ofstream &myfile){
             //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
             for(j=N;j--;){
                 for(q=dim;q--;){
-                    Rnew(j,q) = R(j,q) + (doubleRNG(gen) - 0.5)*rho;
+                    Rnew[j,q] = R[j,q] + (doubleRNG(gen) - 0.5)*rho;
                 }
 
                 A = (wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);
@@ -184,7 +185,7 @@ double Solver::energy_real(mat &R){ //done optimization
     double energy = 0;
     for(i = 0; i < N; i++){
         for(j = 0; j < dim; j++){
-            energy += R(i,j)*R(i,j);
+            energy += R[i,j]*R[i,j];
         }
     }
     return (0.5*omega*omega - 2*alpha*alpha)*energy + alpha*dim*N;
@@ -222,9 +223,7 @@ void Solver::langevin( std::ofstream &myfile){
     myfile << endl << "Importance Sampling:" << endl;
     start=clock();
     double D = 0.5; //diffusion coefficient
-
-    double Ddt = D*dt;
-    double Ddt05 = Ddt*0.5;
+    //double dt = 0.01; //time step
 
     random_device rd;
     mt19937 gen(rd());
@@ -237,7 +236,6 @@ void Solver::langevin( std::ofstream &myfile){
     double current_alpha;
     double sumKE = 0;
     double sdt = sqrt(dt);
-    double alpha4 = alpha*(-4);
     while(num_alpha < size(alpha_vec,0)){
         current_alpha = alpha;//alpha_vec(num_alpha);
         // initialize random positions
@@ -250,19 +248,21 @@ void Solver::langevin( std::ofstream &myfile){
         mat Rminus = zeros(N,dim);
         double accept = 0;
         mat Fqnew = Fq;
+
         double greens;
         // iterate over MC cycles
+        double Ddt = D*dt;
+        double Ddt05 = 0.5*Ddt;
+        double alpha4 = -4*alpha;
 
         for(i=0;i<mc;i++){
             //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
-            for(j=0;j<N;j++){
+            for(j = 0;j<N;j++){
                 greens = 0;
-
-                for(q=0;q<dim;q++){
+                for(q = 0; q < dim; q++){
                     Rnew(j,q) = R(j,q) + Ddt*Fq(j,q) + gaussianRNG(gen)*sdt;
                     Fqnew(j,q) = alpha4*Rnew(j,q);
                     greens += 0.5*(Fq(j,q) + Fqnew(j,q))*(Ddt05*(Fq(j,q)-Fqnew(j,q))-Rnew(j,q)+R(j,q));
-
                 }
                 greens = exp(greens);
                 A = greens*(wavefunc(Rnew,current_alpha))/wavefunc(R,current_alpha);
