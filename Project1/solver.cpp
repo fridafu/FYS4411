@@ -12,9 +12,7 @@ void Solver::solve( std::ofstream &myfile){
     myfile << "Brute force:" << endl;
 
     start=clock();
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_real_distribution<double> doubleRNG(0,1);
+
 
     int num_alpha = 0;
     vec alpha_vec = ones(1);
@@ -34,14 +32,14 @@ void Solver::solve( std::ofstream &myfile){
             //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
             for(j=0;j<N;j++){
                 for(q=0;q<dim;q++){
-                    Rnew(j,q) = R(j,q) + (doubleRNG(gen) - 0.5)*rho;
+                    Rnew(j,q) = R(j,q) + (doubleRNG(genMT64) - 0.5)*rho;
                 }
 
                 double A = (wavefunc(Rnew,current_alpha))/wavefunc(R, current_alpha);
                 A *= A;
 
                 // test if new position is more probable than random number between 0 and 1.
-                if((A > 1) || (A > doubleRNG(gen))){
+                if((A > 1) || (A > doubleRNG(genMT64))){
                     R(j) = Rnew(j); //accept new position
                     accept += 1;
                 } else {
@@ -83,18 +81,16 @@ double Solver::wavefunc(mat &R, double alpha_){// need R, alpha
     }
     double f = 1; //no interaction here!!
     double psi = exp(-alpha_*g)*f;
+    //cout << psi << endl;
     return psi;
 }
 
 mat Solver::init_pos(){
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_real_distribution<double> doubleRNG2(0,1);
     int k; int l;
     mat position = zeros(N,dim);
     for(k=0;k<N;k++){
         for(l=0;l<dim;l++){
-            position(k,l) = (doubleRNG2(gen) - 0.5)*rho;
+            position(k,l) = (doubleRNG(genMT64) - 0.5)*rho;
         }
     }
     return position;
@@ -108,9 +104,6 @@ double Solver::energy_local(){
     return 0.5 * hbar * omega * N * dim;
 }
 void Solver::solve_num( std::ofstream &myfile){
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_real_distribution<double> doubleRNG(0,1);
     myfile << endl << "Numerical derivation of kinetic energy:" << endl;
     start=clock();
 
@@ -128,23 +121,23 @@ void Solver::solve_num( std::ofstream &myfile){
         int i; int j; int q;
 
         //initialize expectation values
-        mat Rplus = zeros(N,dim);
-        mat Rminus = zeros(N,dim);
         double accept = 0;
 
         // iterate over MC cycles
-        for(i=mc;i--;){
+        for(i=0;i<mc;i++){
             //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
-            for(j=N;j--;){
-                for(q=dim;q--;){
-                    R2new(j,q) = R2(j,q) + (doubleRNG(gen) - 0.5)*rho;
+            for(j=0;j<N;j++){
+                for(q=0;q<dim;q++){
+                    R2new(j,q) = R2(j,q) + (doubleRNG(genMT64) - 0.5)*rho;
+                    //cout << R2new(j,q) << endl;
                 }
 
                 double A = (wavefunc(R2new,current_alpha))/wavefunc(R2,current_alpha);
 
                 A *= A;
                 // test if new position is more probable than random number between 0 and 1.
-                if((A > 1) || (A > doubleRNG(gen))) {
+                if((A > 1) || (A > doubleRNG(genMT64))) {
+
                     R2(j) = R2new(j); //accept new position
                     accept += 1;
                 } else {
@@ -156,6 +149,7 @@ void Solver::solve_num( std::ofstream &myfile){
 
                 //sumKE += energy_num(R2, current_alpha);
                 sumKE += drit;
+
 
             }
         }
@@ -185,6 +179,7 @@ double Solver::energy_real(mat &R){ //done optimization
 }
 
 double Solver::energy_num(mat &R, double alphanow){
+
     double wavefuncnow = wavefunc(R, alphanow);
     double Ek = 0;
     double Vext = 0;
@@ -192,6 +187,7 @@ double Solver::energy_num(mat &R, double alphanow){
     // Calculate kinetic energy by numerical derivation
     mat Rplus = R + h;
     mat Rminus = R - h;
+
     double c = 0.5*m*omega*omega;
     for(int j = 0; j < N; j++) {
         r2 = 0;
@@ -204,7 +200,7 @@ double Solver::energy_num(mat &R, double alphanow){
     double wavefuncminus = wavefunc(Rminus, alphanow);
     Ek -= (wavefuncplus+wavefuncminus - 2*wavefuncnow);
     Ek = 0.5 * Ek * h2 / wavefuncnow;
-    cout << Ek << endl;
+    //cout << Ek << endl;
     return Ek + Vext;
 }
 
@@ -215,11 +211,8 @@ void Solver::langevin( std::ofstream &myfile){
 
     double Ddt = D*dt;
     double Ddt05 = Ddt*0.5;
-
-    random_device rd;
-    mt19937 gen(rd());
     normal_distribution<double> gaussianRNG(0.,0.5);
-    uniform_real_distribution<double> doubleRNG(0,1);
+
 
     // loop over alpha when we try out
     int num_alpha = 0;
@@ -249,7 +242,7 @@ void Solver::langevin( std::ofstream &myfile){
                 greens = 0;
 
                 for(q=0;q<dim;q++){
-                    R3new(j,q) = R3(j,q) + Ddt*Fq(j,q) + gaussianRNG(gen)*sdt;
+                    R3new(j,q) = R3(j,q) + Ddt*Fq(j,q) + gaussianRNG(genMT64)*sdt;
                     Fqnew(j,q) = alpha4*R3new(j,q);
                     greens += 0.5*(Fq(j,q) + Fqnew(j,q))*(Ddt05*(Fq(j,q)-Fqnew(j,q))-R3new(j,q)+R3(j,q));
 
@@ -258,7 +251,7 @@ void Solver::langevin( std::ofstream &myfile){
                 double A = greens*(wavefunc(R3new,current_alpha))/wavefunc(R3,current_alpha);
                 A *= A;
                 // test if new position is more probable than random number between 0 and 1.
-                if((A > 1) || (A > doubleRNG(gen))){
+                if((A > 1) || (A > doubleRNG(genMT64))){
                     R3(j) = R3new(j); //accept new position
                     Fq(j) = Fqnew(j);
                     accept += 1;
@@ -294,4 +287,8 @@ Solver::Solver(double s_beta, double s_hbar, double mass, double s_omega, double
     h = s_h;
     h2 = 1.0/(h*h);
     dt = s_dt;
+
+    random_device rd;
+    mt19937_64 genMT64(rd());
+    doubleRNG = uniform_real_distribution<double>(0,1);
 }

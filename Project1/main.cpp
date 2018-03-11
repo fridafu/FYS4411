@@ -10,7 +10,7 @@ int main(){
     double alpha = 0.5;
     double rho = 0.1;
     double dt = 0.001;
-    int mc = 100000; // monte carlo cycles
+    int mc = 10000; // monte carlo cycles
     int numpart = 100; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
     int howmanyDs = 3;
     double beta = 1;
@@ -22,7 +22,7 @@ int main(){
     Solver S(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt); // initialize Solver class
     ofstream myfile;
     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-    myfile.open("1644.dat");
+    myfile.open("1738.dat");
     //S.solve(myfile);
     S.solve_num(myfile);
     //S.langevin(myfile);

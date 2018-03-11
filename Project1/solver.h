@@ -26,6 +26,9 @@ public:
     double h2;
     double dt;
 
+    mt19937_64 genMT64;
+    uniform_real_distribution<double> doubleRNG;
+
     int mc; //num MC cycles
     int dim;
     double rho; //position update parameter
