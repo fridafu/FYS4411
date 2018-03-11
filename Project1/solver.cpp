@@ -90,7 +90,7 @@ mat Solver::init_pos(){
     mat position = zeros(N,dim);
     for(k=0;k<N;k++){
         for(l=0;l<dim;l++){
-            position(k,l) = (doubleRNG(genMT64) - 0.5)*rho;
+            position(k,l) = (rando() - 0.5)*rho;
         }
     }
     return position;
@@ -103,6 +103,11 @@ double Solver::PDF(mat &R, double alpha_){
 double Solver::energy_local(){
     return 0.5 * hbar * omega * N * dim;
 }
+
+double Solver::rando(){
+    return doubleRNG(genMT64);
+}
+
 void Solver::solve_num( std::ofstream &myfile){
     myfile << endl << "Numerical derivation of kinetic energy:" << endl;
     start=clock();
@@ -128,7 +133,7 @@ void Solver::solve_num( std::ofstream &myfile){
             //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
             for(j=0;j<N;j++){
                 for(q=0;q<dim;q++){
-                    R2new(j,q) = R2(j,q) + (doubleRNG(genMT64) - 0.5)*rho;
+                    R2new(j,q) = R2(j,q) + (rando() - 0.5)*rho;
                     //cout << R2new(j,q) << endl;
                 }
 
@@ -136,7 +141,7 @@ void Solver::solve_num( std::ofstream &myfile){
 
                 A *= A;
                 // test if new position is more probable than random number between 0 and 1.
-                if((A > 1) || (A > doubleRNG(genMT64))) {
+                if((A > 1) || (A > rando())) {
 
                     R2(j) = R2new(j); //accept new position
                     accept += 1;
@@ -149,8 +154,6 @@ void Solver::solve_num( std::ofstream &myfile){
 
                 //sumKE += energy_num(R2, current_alpha);
                 sumKE += drit;
-
-
             }
         }
         num_alpha += 1;
@@ -289,6 +292,7 @@ Solver::Solver(double s_beta, double s_hbar, double mass, double s_omega, double
     dt = s_dt;
 
     random_device rd;
-    mt19937_64 genMT64(rd());
+    mt19937_64 genMT64(rd);
+    rd.seed(time(NULL));
     doubleRNG = uniform_real_distribution<double>(0,1);
 }

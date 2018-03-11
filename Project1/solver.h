@@ -26,6 +26,7 @@ public:
     double h2;
     double dt;
 
+
     mt19937_64 genMT64;
     uniform_real_distribution<double> doubleRNG;
 
@@ -34,6 +35,7 @@ public:
     double rho; //position update parameter
     // functions in class
     double PDF(mat &R, double alpha_);
+    double rando();
     void solve(std::ofstream &myfile);// int mc=10, int N=1
     void solve_num(std::ofstream &myfile);
     void langevin(std::ofstream &myfile);
