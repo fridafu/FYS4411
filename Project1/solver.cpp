@@ -20,7 +20,10 @@ void Solver::solve( std::ofstream &myfile){
     vec alpha_vec = ones(1);
     double current_alpha;
     double newE = 0;
-
+    mat testR = init_pos();
+    mat dis = distance_part(testR);
+    cout << testR << endl;
+    cout << dis << endl;
     while(num_alpha < size(alpha_vec,0)){
         current_alpha = alpha;
 
@@ -290,6 +293,53 @@ void Solver::langevin( std::ofstream &myfile){
     cout << "Langevin and all are finished! Yay." << endl;
 }
 
+double Solver::absdistance(vec R1, vec R2){
+    double r = 0;
+    for(int k = 0; k < dim; k++){
+        r += pow(R1(k)-R2(k),2);
+    }
+    return sqrt(r);
+}
+
+mat Solver::distance_part(mat &R){
+    mat rij = ones(N,N);
+    rij.fill(NAN);
+    for(int i = 0; i < N; i++){
+        for(int j = i+1; j < N; j++){
+
+            rij(i,j) = norm(R(i)-R(j));
+            //rij(i,j) = absdistance(R(i),R(j));
+        }
+    }
+    return rij;
+}
+/*
+mat Solver::init_L2(){
+    mat Solver::init_pos_interact(){
+    random_device rd;
+    mt19937_64 gen(rd());
+    uniform_real_distribution<double> doubleRNG2(0,1);
+    int k; int l;
+    mat position1 = zeros(N,dim);
+    mat position2 = zeros(N,dim);
+    double a = 0.043;
+    for(k=0;k<N;k++){
+        for(l=0;l<dim;l++){
+            position1(k,l) = (doubleRNG2(gen) - 0.5)*rho;
+
+            for(int d=0;d<N;d++){
+                for(int e=0;d<N;d++){
+                    if(norm(position1(e) - position1(d)) > a){
+
+                    } else{
+
+                    }
+            }
+        }
+    }
+    return position;
+}
+*/
 Solver::Solver(double s_beta, double s_hbar, double mass, double s_omega, double s_alpha, double s_rho, int s_mc, int s_N, int s_dim, double s_h, double s_dt){
     beta = s_beta;
     hbar = s_hbar;

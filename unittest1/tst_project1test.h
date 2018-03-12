@@ -62,3 +62,52 @@ TEST(project1test, wavefunction)
     EXPECT_NEAR(Esolver, energy, 1e-4);
     EXPECT_NEAR(Esolver, energy2, 1e-4);
 }
+
+TEST(project1test, interaction){
+    double alpha = 0.5;
+    double rho = 0.1;
+    double dt = 0.001;
+    int mc = 10000; // monte carlo cycles
+    int numpart = 5;
+    int howmanyDs = 3;
+    double beta = 1;
+    double hbar = 1;
+    double mass = 1;
+    double omega = 1;
+    double h = 0.001;
+    double m = 1;
+
+    Solver S(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
+    mat Rij = S.init_pos();
+    mat distance = S.distance_part(Rij);
+
+    int g = 0;
+    for(int i = 0; i < numpart; i++){
+        for(int j = 0; j < numpart; j++){
+            g += isnan(distance(i,j));
+
+        }
+    }
+    int o = 0;
+    int nannumber = numpart*(numpart+1)/2;
+    EXPECT_EQ(g,nannumber);
+    for(int k = 0; k < numpart; k++){
+        for(int l = k+1; l < numpart; l++){
+            o += isnan(distance(k,l));
+        }
+    }
+    EXPECT_EQ(o,0);
+    /*
+    while(i > 0){
+        for(int j = 0; j < numpart; j++){
+            bool a = isnan(Rij(i,j));
+            cout << a << " " << Rij(i,j) << endl;
+            EXPECT_TRUE(a);
+            i-=1;
+        }
+    }*/
+    //NAN != NAN;
+    //NAN == NAN;
+
+
+}
