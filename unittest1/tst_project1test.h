@@ -54,11 +54,11 @@ TEST(project1test, wavefunction)
     double h2 = 1/(h*h);
     double energy =(-0.5*(gplus - 2*g + gminus)*h2/g) + Vext;
     double Esolver = S.energy_num(R,alpha);
-    double energy2 = -0.5*(S.wavefunc(Rplus,alpha) - 2*psi + S.wavefunc(Rminus,alpha))/(h*h*psi);
+    double energy2 = -0.5*(S.wavefunc(Rplus,alpha) - 2*psi + S.wavefunc(Rminus,alpha))/(h*h*psi) + Vext;
     cout << energy << endl;
     cout << Esolver << endl;
     cout << energy2 << endl;
 
-    EXPECT_NEAR(Esolver, energy,0.5);
-    EXPECT_NEAR(Esolver, energy2, 0.5);
+    EXPECT_NEAR(Esolver, energy, 1e-4);
+    EXPECT_NEAR(Esolver, energy2, 1e-4);
 }
