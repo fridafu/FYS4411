@@ -26,11 +26,14 @@ public:
     double h2;
     double dt;
 
+
+
     int mc; //num MC cycles
     int dim;
     double rho; //position update parameter
     // functions in class
     double PDF(mat &R, double alpha_);
+    double rando();
     void solve(std::ofstream &myfile);// int mc=10, int N=1
     void solve_num(std::ofstream &myfile);
     void langevin(std::ofstream &myfile);

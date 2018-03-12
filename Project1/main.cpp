@@ -2,6 +2,7 @@
 #include "solver.h"
 #include "solver.cpp"
 #include "armadillo"
+
 using namespace std;
 using namespace arma;
 
@@ -18,7 +19,6 @@ int main(){
     double hbar = 1;
     double mass = 1;
     double omega = 1;
-
 
     Solver S(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt); // initialize Solver class
     ofstream myfile;
