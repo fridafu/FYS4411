@@ -88,6 +88,9 @@ double Solver::wavefunc(mat &R, double alpha_){// need R, alpha
 }
 
 mat Solver::init_pos(){
+    random_device rd;	
+    mt19937 gen(rd());	
+    uniform_real_distribution<double> doubleRNG2(0,1);
     int k; int l;
     mat position = zeros(N,dim);
     for(k=0;k<N;k++){
