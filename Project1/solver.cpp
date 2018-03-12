@@ -7,13 +7,13 @@ using namespace arma;
 void Solver::solve( std::ofstream &myfile){
     double energy = energy_local();
 
-    myfile << "dim = " << dim << ", N = " << N << ". and mc = " << mc << endl << endl;
+    myfile << "dim = " << dim << ", N = " << N << ", dt = " << dt << ", alpha = " << alpha << " and mc = " << mc << endl << endl;
     myfile << scientific << "Theoretical Energy = " << energy << endl << endl;
     myfile << "Brute force:" << endl;
 
     start=clock();
     random_device rd;
-    mt19937 gen(rd());
+    mt19937_64 gen(rd());
     uniform_real_distribution<double> doubleRNG(0,1);
 
     int num_alpha = 0;
@@ -109,7 +109,7 @@ double Solver::energy_local(){
 }
 void Solver::solve_num( std::ofstream &myfile){
     random_device rd;
-    mt19937 gen(rd());
+    mt19937_64 gen(rd());
     uniform_real_distribution<double> doubleRNG(0,1);
     myfile << endl << "Numerical derivation of kinetic energy:" << endl;
     start=clock();
@@ -133,10 +133,10 @@ void Solver::solve_num( std::ofstream &myfile){
         double accept = 0;
 
         // iterate over MC cycles
-        for(i=mc;i--;){
+        for(i=0;i<mc;i++){
             //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
-            for(j=N;j--;){
-                for(q=dim;q--;){
+            for(j=0;j<N;j++){
+                for(q=0;q<dim;q++){
                     R2new(j,q) = R2(j,q) + (doubleRNG(gen) - 0.5)*rho;
                 }
 
@@ -204,7 +204,6 @@ double Solver::energy_num(mat &R, double alphanow){
     double wavefuncminus = wavefunc(Rminus, alphanow);
     Ek -= (wavefuncplus+wavefuncminus - 2*wavefuncnow);
     Ek = 0.5 * Ek * h2 / wavefuncnow;
-    cout << Ek << endl;
     return Ek + Vext;
 }
 
@@ -217,7 +216,7 @@ void Solver::langevin( std::ofstream &myfile){
     double Ddt05 = Ddt*0.5;
 
     random_device rd;
-    mt19937 gen(rd());
+    mt19937_64 gen(rd());
     normal_distribution<double> gaussianRNG(0.,0.5);
     uniform_real_distribution<double> doubleRNG(0,1);
 
