@@ -89,8 +89,8 @@ double Solver::wavefunc(mat &R, double alpha_){// need R, alpha
 
 mat Solver::init_pos(){
     random_device rd;	
-    mt19937 gen(rd());	
-    uniform_real_distribution<double> doubleRNG2(0,1);
+    mt19937_64 genMT64(rd());
+    uniform_real_distribution<double> doubleRNG(0,1);
     int k; int l;
     mat position = zeros(N,dim);
     for(k=0;k<N;k++){
@@ -153,7 +153,7 @@ void Solver::solve_num( std::ofstream &myfile){
 
                 A *= A;
                 // test if new position is more probable than random number between 0 and 1.
-                if((A > 1) || (A > rando())) {
+                if((A > 1) || (A > doubleRNG(genMT64))) {
 
                     R2(j) = R2new(j); //accept new position
                     accept += 1;
@@ -268,7 +268,7 @@ void Solver::langevin( std::ofstream &myfile){
                 double A = greens*(wavefunc(R3new,current_alpha))/wavefunc(R3,current_alpha);
                 A *= A;
                 // test if new position is more probable than random number between 0 and 1.
-                if((A > 1) || (A > doubleRNG(genMT64))){
+                if((A > 1) || (A > gaussianRNG(genMT64))){
                     R3(j) = R3new(j); //accept new position
                     Fq(j) = Fqnew(j);
                     accept += 1;
@@ -308,5 +308,5 @@ Solver::Solver(double s_beta, double s_hbar, double mass, double s_omega, double
     //random_device rd;
     //mt19937_64 genMT64(rd);
     //rd.seed(time(NULL));
-    doubleRNG = uniform_real_distribution<double>(0,1);
+    //doubleRNG = uniform_real_distribution<double>(0,1);
 }
