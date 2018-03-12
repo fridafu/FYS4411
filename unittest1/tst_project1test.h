@@ -88,6 +88,7 @@ TEST(project1test, interaction){
 
         }
     }
+
     int o = 0;
     int nannumber = numpart*(numpart+1)/2;
     EXPECT_EQ(g,nannumber);
@@ -97,17 +98,5 @@ TEST(project1test, interaction){
         }
     }
     EXPECT_EQ(o,0);
-    /*
-    while(i > 0){
-        for(int j = 0; j < numpart; j++){
-            bool a = isnan(Rij(i,j));
-            cout << a << " " << Rij(i,j) << endl;
-            EXPECT_TRUE(a);
-            i-=1;
-        }
-    }*/
-    //NAN != NAN;
-    //NAN == NAN;
-
 
 }
