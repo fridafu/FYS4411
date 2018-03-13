@@ -302,12 +302,13 @@ double Solver::absdistance(vec R1, vec R2){
 }
 
 mat Solver::distance_part(mat &R){
-    mat rij = ones(N,N);
+    mat rij = zeros(N,N);
     rij.fill(NAN);
     for(int i = 0; i < N; i++){
         for(int j = i+1; j < N; j++){
 
-            rij(i,j) = norm(R(i)-R(j));
+            rij(i,j) = norm(R.row(i) - R.row(j));
+
             //rij(i,j) = absdistance(R(i),R(j));
         }
     }
