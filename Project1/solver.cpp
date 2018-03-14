@@ -3,7 +3,6 @@
 
 using namespace arma;
 
-
 void Solver::solve( std::ofstream &myfile){
     double energy = energy_local();
 
@@ -277,6 +276,24 @@ void Solver::langevin( std::ofstream &myfile){
     end=clock();
     myfile<<scientific<<"Importance sampling CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
     cout << "Langevin and all are finished! Yay." << endl;
+}
+
+mat Solver::init_pos_interact(){
+    random_device rd;
+    mt19937_64 gen(rd());
+    uniform_real_distribution<double> doubleRNG2(0,1);
+    int k; int l;
+    mat position1 = zeros(N,dim);
+    mat position2 = zeros(N,dim);
+    double a = 0.043;
+
+    for(k=0;k<N;k++){
+        for(l=0;l<dim;l++){
+            position1(k,l) = (doubleRNG2(gen) - 0.5)*rho;
+        }
+    }
+
+    return position1;
 }
 
 Solver::Solver(double s_beta, double s_hbar, double mass, double s_omega, double s_alpha, double s_rho, int s_mc, int s_N, int s_dim, double s_h, double s_dt){

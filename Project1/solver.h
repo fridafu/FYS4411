@@ -38,6 +38,7 @@ public:
     double wavefunc(mat &R, double alpha_);
     double energy_local(); // later also R
     mat init_pos();
+    mat init_pos_interact();
     double energy_real(mat &R); // not analytical solution
     double energy_num(mat &R, double alphanow);
     clock_t start, end;
