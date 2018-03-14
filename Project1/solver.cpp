@@ -105,6 +105,22 @@ mat Solver::init_pos(){
     return position;
 }
 
+mat Solver::init_pos_gaus(){
+    random_device rd;
+    mt19937_64 genMT64(rd());
+    normal_distribution<double> gaussianRNG(0.,0.5);
+    int k; int l;
+    mat position = zeros(N,dim);
+    for(k=0;k<N;k++){
+        for(l=0;l<dim;l++){
+            //position(k,l) = (rando() - 0.5)*rho;
+            position(k,l) = (gaussianRNG(genMT64) - 0.5)*rho;
+        }
+    }
+    return position;
+}
+
+
 double Solver::PDF(mat &R, double alpha_){
     return pow(abs(wavefunc(R, alpha_)),2);
 }
@@ -232,7 +248,7 @@ void Solver::langevin( std::ofstream &myfile){
     random_device rd;
     mt19937_64 genMT64(rd());
     normal_distribution<double> gaussianRNG(0.,0.5);
-
+    uniform_real_distribution<double> doubleRNG(0,1);
 
     // loop over alpha when we try out
     int num_alpha = 0;
@@ -244,7 +260,7 @@ void Solver::langevin( std::ofstream &myfile){
     while(num_alpha < size(alpha_vec,0)){
         current_alpha = alpha;//alpha_vec(num_alpha);
         // initialize random positions
-        mat R3 = init_pos();
+        mat R3 = init_pos_gaus();
         mat R3new = R3;
         int i; int j; int q;
         mat Fq = F(R3);
@@ -271,7 +287,7 @@ void Solver::langevin( std::ofstream &myfile){
                 double A = greens*(wavefunc(R3new,current_alpha))/wavefunc(R3,current_alpha);
                 A *= A;
                 // test if new position is more probable than random number between 0 and 1.
-                if((A > 1) || (A > gaussianRNG(genMT64))){
+                if((A > 1) || (A > doubleRNG(genMT64))){ // FIKS!!!
                     R3(j) = R3new(j); //accept new position
                     Fq(j) = Fqnew(j);
                     accept += 1;
@@ -314,33 +330,52 @@ mat Solver::distance_part(mat &R){
     }
     return rij;
 }
-/*
-mat Solver::init_L2(){
-    mat Solver::init_pos_interact(){
+
+mat Solver::init_pos_interact(){
+    mat position = init_pos_gaus();
+    mat comfort_zone = too_close(position);
+    //cout << comfort_zone << endl;
+    cout << min(min(distance_part(comfort_zone))) << endl;
+    //mat zeropos = zeros(N, dim);
+    //mat doesthiswork = too_close(zeropos);
+    //cout << "check" << doesthiswork << endl;
+    //cout << "is all above a " << distance_part(doesthiswork) << endl;
+    return comfort_zone;
+    //return doesthiswork;
+}
+
+mat Solver::too_close(mat &Rtull){
     random_device rd;
-    mt19937_64 gen(rd());
-    uniform_real_distribution<double> doubleRNG2(0,1);
-    int k; int l;
-    mat position1 = zeros(N,dim);
-    mat position2 = zeros(N,dim);
+    mt19937_64 genMT64(rd());
+    normal_distribution<double> gaussianRNG(0,0.5);
+    mat closeness = distance_part(Rtull);
     double a = 0.043;
-    for(k=0;k<N;k++){
-        for(l=0;l<dim;l++){
-            position1(k,l) = (doubleRNG2(gen) - 0.5)*rho;
+    int counter = 0;
+    int get_away_you_stink = 1;
+    while(get_away_you_stink != 0){
+        counter += 1;
+        get_away_you_stink = 0;
+        int o; int p; int dude;
+        for(o=0;o<N;o++){
 
-            for(int d=0;d<N;d++){
-                for(int e=0;d<N;d++){
-                    if(norm(position1(e) - position1(d)) > a){
-
-                    } else{
-
+            for(p=o+1;p<N;p++){
+                //cout << closeness(o,p) << endl;
+                if(closeness(o,p) < a){
+                    get_away_you_stink = -1;
+                    for(dude=0;dude<dim;dude++){
+                        Rtull(o,dude) = (gaussianRNG(genMT64) - 0.5)*rho;
+                        //closeness(o,p) = norm(R.row(o)-R.row(p));
+                        //cout << Rtull(o,dude)<<endl;
                     }
+                }
             }
+            closeness = distance_part(Rtull);
+
         }
     }
-    return position;
+    return Rtull;
 }
-*/
+
 Solver::Solver(double s_beta, double s_hbar, double mass, double s_omega, double s_alpha, double s_rho, int s_mc, int s_N, int s_dim, double s_h, double s_dt){
     beta = s_beta;
     hbar = s_hbar;

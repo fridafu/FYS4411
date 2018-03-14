@@ -41,10 +41,14 @@ public:
     double wavefunc(mat &R, double alpha_);
     double energy_local(); // later also R
     mat init_pos();
+    mat init_pos_gaus();
+    mat init_pos_interact();
     mat distance_part(mat &R);
     double absdistance(vec R1, vec R2);
     double energy_real(mat &R); // not analytical solution
     double energy_num(mat &R, double alphanow);
+    mat too_close(mat &Rtull);
+
     clock_t start, end;
 private:
 };
