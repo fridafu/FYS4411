@@ -232,6 +232,7 @@ void Solver::langevin( std::ofstream &myfile){
     random_device rd;
     mt19937_64 genMT64(rd());
     normal_distribution<double> gaussianRNG(0.,0.5);
+    uniform_real_distribution<double> doubleRNG(0,1);
 
 
     // loop over alpha when we try out
@@ -271,7 +272,7 @@ void Solver::langevin( std::ofstream &myfile){
                 double A = greens*(wavefunc(R3new,current_alpha))/wavefunc(R3,current_alpha);
                 A *= A;
                 // test if new position is more probable than random number between 0 and 1.
-                if((A > 1) || (A > gaussianRNG(genMT64))){
+                if((A > 1) || (A > doubleRNG(genMT64))){
                     R3(j) = R3new(j); //accept new position
                     Fq(j) = Fqnew(j);
                     accept += 1;
