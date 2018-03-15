@@ -76,6 +76,7 @@ mat Solver::distance_part(mat &R){
     }
     return rij;
 }
+
 double Solver::energy_num(mat &R, double alphanow){
 
     double wavefuncnow = wavefunc(R, alphanow);
@@ -100,4 +101,17 @@ double Solver::energy_num(mat &R, double alphanow){
     Ek = 0.5 * Ek * h2 / wavefuncnow;
     return Ek + Vext;
 }
+mat Solver::F(mat &R_){
+    return -4*R_*alpha;
+}
 
+double Solver::energy_real(mat &R, double alpha){ //done optimization
+    int i; int j;
+    double energy = 0;
+    for(i = 0; i < N; i++){
+        for(j = 0; j < dim; j++){
+            energy += R(i,j)*R(i,j);
+        }
+    }
+    return (0.5*omega*omega - 2*alpha*alpha)*energy + alpha*dim*N;
+}

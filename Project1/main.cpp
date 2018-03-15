@@ -16,7 +16,7 @@ int main(){
     double rho = 0.1;
     double dt = 0.001;
     double h = 0.001;
-    int mc = 1000000; // monte carlo cycles
+    int mc = 100000; // monte carlo cycles
     int numpart = 100; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
     int howmanyDs = 3;
     double beta = 1;
@@ -31,9 +31,10 @@ int main(){
 
     ofstream myfile;
     myfile.open("classy.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-    B->solve(myfile);
-    B->solve_num(myfile);
+    //B->solve(myfile);
+    //B->solve_num(myfile);
     Imp->langevin(myfile);
+    //Int->solve_interact(myfile);
     myfile.close();
 
     delete B;

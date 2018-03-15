@@ -22,6 +22,7 @@ Bruteforce::Bruteforce(double s_beta,
 double Bruteforce::energy_local(){
     return 0.5 * hbar * omega * N * dim;
 }
+
 void Bruteforce::solve( std::ofstream &myfile){
     double energy = energy_local();
 
@@ -68,7 +69,7 @@ void Bruteforce::solve( std::ofstream &myfile){
                 } else {
                     Rnew(j) = R(j);
                 }
-                newE += energy_real(R); // calculate change in energy
+                newE += energy_real(R, current_alpha); // calculate change in energy
            }
         }
 
@@ -86,16 +87,7 @@ void Bruteforce::solve( std::ofstream &myfile){
     myfile << scientific << "Calculated energy =  " << newE/(mc*N) << endl;
     myfile<< scientific <<"Brute Force CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
 }
-double Bruteforce::energy_real(mat &R){ //done optimization
-    int i; int j;
-    double energy = 0;
-    for(i = 0; i < N; i++){
-        for(j = 0; j < dim; j++){
-            energy += R(i,j)*R(i,j);
-        }
-    }
-    return (0.5*omega*omega - 2*alpha*alpha)*energy + alpha*dim*N;
-}
+
 mat Bruteforce::init_pos(){
     random_device rd;
     mt19937_64 genMT64(rd());
@@ -171,5 +163,5 @@ void Bruteforce::solve_num( std::ofstream &myfile){
     myfile << scientific << "Numerical Energy = " << sumKE/(N*mc) << endl;
     end=clock();
     myfile<<scientific<<"Num dev CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
-    cout << "Numerical energy finished! One to go!!!" << endl;
+    cout << "Numerical energy finished!!!" << endl;
 }
