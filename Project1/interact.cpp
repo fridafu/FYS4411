@@ -14,7 +14,7 @@ Interact::Interact(double s_beta,
                    double s_dt)
 :
     Solver(s_beta, s_hbar, mass,s_omega, s_alpha, s_rho, s_mc, s_N, s_dim, s_h, s_dt)
-{a = 0.0043}
+{a = 0.0043;}
 mat Interact::init_pos_interact(){
     mat position = init_pos_gaus();
     mat comfort_zone = too_close(position);
@@ -80,6 +80,7 @@ double Interact::wavefunc_interact(mat &R, double alpha_, mat &distanceRij){
     double psi = exp(-alpha_*g)*f;
     return psi;
 }
+
 void Interact::solve_interact( std::ofstream &myfile){
     myfile << endl << "Calculation with interaction: " << endl;
     start=clock();
@@ -207,19 +208,27 @@ mat Interact::nablaf(mat &R, mat &distR){
     return sum;
 }
 
+double Interact::doublesum(mat &R, mat &distanceR){ // maybe not necessar as this can be stored already from earlier calculations
+    mat sumijnotk = nablaf(R,distanceR);
+    return dot(sumijnotk,sumijnotk);
+}
 
-
-mat Interact::nablaF(mat &R, mat &Rkj){
-    mat nF = zeros(N);
+double Interact::suma2(mat &distanceR){
     int k; int j;
-    for(int k = 0; k < N; k++){
-        for(int j = 0; j < N; j++){
+    double suma = 0;
+    double rkj = 0;
+    double rkja2 = 0;
+    double a2 = a*a;
+    for(k = 0; k < N; k++){
+        for(j = 0; j < N; j++){
             if(k != j){
-
+                rkj = distanceR(k,j);
+                rkja2 = (rkj - a)*(rkj - a);
+                suma -= a2/(rkj*rkj*rkja2);
             }
         }
-
     }
+    return suma;
 }
 
 double Interact::energy_interact(mat &R, double alphanow){
