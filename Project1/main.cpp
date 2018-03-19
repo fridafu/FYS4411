@@ -1,11 +1,15 @@
 #include <iostream>
 #include "solver.h"
 #include "solver.cpp"
+#include "bruteforce.h"
+#include "bruteforce.cpp"
+#include "impsamp.h"
+#include "impsamp.cpp"
+#include "interact.h"
+#include "interact.cpp"
 #include "armadillo"
-
 using namespace std;
 using namespace arma;
-
 
 int main(){
     double alpha = 0.2;
@@ -21,11 +25,21 @@ int main(){
     double omega = 1;
 
     Solver S(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt); // initialize Solver class
+    Bruteforce* B = new Bruteforce(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
+    Impsamp* Imp = new Impsamp(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
+    Interact* Int = new Interact(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
+
     ofstream myfile;
-    /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-    myfile.open("n10_test.dat");
-    //S.solve(myfile);
-    //S.solve_num(myfile);
-    S.langevin(myfile);
+
+    myfile.open("classy.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+    //B->solve(myfile);
+    //B->solve_num(myfile);
+    Imp->langevin(myfile);
+    //Int->solve_interact(myfile);
+
     myfile.close();
+
+    delete B;
+    delete Imp;
+    delete Int;
 }
