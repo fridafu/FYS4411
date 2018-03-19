@@ -12,9 +12,11 @@ public:
     double wavefunc_interact(mat &R, double alphanow, mat &distancematrix);
     double energy_interact(mat &R, double alphanow);
     void solve_interact(std::ofstream &myfile);
-    double lapphi(mat rk);
+    mat lapphi(mat &R);
+    mat nablaphi(mat &R);
     mat nablaphinablaF(mat &R, mat &distR);
     mat nablaf(mat &R, mat &distR);
-    double doublesum(mat &R, mat &distanceR);
+    mat doublesum(mat &R, mat &distanceR);
+    mat suma2(mat &distanceR);
 };
 #endif

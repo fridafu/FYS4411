@@ -153,14 +153,24 @@ void Interact::solve_interact( std::ofstream &myfile){
     cout << "Interaction and all are finished! Yay." << endl;
 }
 
-double Interact::lapphi(mat rk){
-    if(dim == 3){
-        rk(2) = beta*rk(2);
-        return -2*alpha*(2 + beta -2*alpha*(dot(rk,rk))); // write more effecient, calculate 2alpha and beta^2 as own variables
+mat Interact::lapphi(mat &R){
+    mat lphi = zeros(N);
+    for(int k = 0; k < N; k++){
+        if(dim == 3){
+            R.col(2) = beta*R.col(2);
+            lphi(k) = -2*alpha*(2 + beta -2*alpha*dot(R.row(k),R.row(k))); // write more effecient, calculate 2alpha and beta^2 as own variables
+        } else{
+            lphi(k) = -2*alpha*((3-dim) + beta -2*alpha*dot(R.row(k),R.row(k)));
+        }
     }
-    else{
-        return -2*alpha*((3-dim) + beta -2*alpha*(dot(rk,rk)));
-    }
+    return lphi;
+}
+
+
+mat Interact::nablaphi(mat &R){
+    mat newR = R;
+    newR.col(2) = R.col(2)*beta;
+    return -2*alpha*newR;
 }
 
 mat Interact::nablaphinablaF(mat &R, mat &distR){
@@ -199,23 +209,18 @@ mat Interact::nablaf(mat &R, mat &distR){
                 sum.row(k) += (rk-R.row(j))*a/(rkj*rkj*(rkj - a));
             }
         }
-        /*
-        for(i = k+1; i < N;i++){
-            rkj = distR(k,i);
-            sum(k) += (rk-R(j))*a/(rkj*rkj*(rkj - a));
-        }*/
     }
     return sum;
 }
-
-double Interact::doublesum(mat &R, mat &distanceR){ // maybe not necessar as this can be stored already from earlier calculations
+/*
+mat Interact::doublesum(mat &R, mat &distanceR){ // maybe not necessary as this can be stored already from earlier calculations
     mat sumijnotk = nablaf(R,distanceR);
     return dot(sumijnotk,sumijnotk);
-}
+}*/
 
-double Interact::suma2(mat &distanceR){
+mat Interact::suma2(mat &distanceR){
     int k; int j;
-    double suma = 0;
+    mat suma = zeros(N);
     double rkj = 0;
     double rkja2 = 0;
     double a2 = a*a;
@@ -224,7 +229,7 @@ double Interact::suma2(mat &distanceR){
             if(k != j){
                 rkj = distanceR(k,j);
                 rkja2 = (rkj - a)*(rkj - a);
-                suma -= a2/(rkj*rkj*rkja2);
+                suma(k) -= a2/(rkj*rkj*rkja2);
             }
         }
     }
@@ -232,18 +237,22 @@ double Interact::suma2(mat &distanceR){
 }
 
 double Interact::energy_interact(mat &R, double alphanow){
-    double Vext = 0;
+    mat energy = zeros(N);
     double r2 = 0;
     int i; int j;
-    double energy = 0;
-    for(i = 0; i < N; i++){
-        for(j = 0; j < dim; j++){
-            energy += R(i,j)*R(i,j);
-        }
+    double Vext = 0;
+    mat rkj = distance_part(R);
+    mat lphi = lapphi(R);
+    mat nphi = nablaphi(R);
+    mat nf = nablaf(R,rkj);
+    mat suma = suma2(rkj);
+    double totsum = 0;
+    for(int k = 0; k < N; k++){
+        energy(k) = lphi(k) + dot(nphi.row(k),nf.row(k)) + dot(nf.row(k),nf.row(k)) + suma(k);
+        totsum += energy(k);
     }
-
     double c = 0.5*m*omega*omega;
-    double Ek = (c - 2*alpha*alpha)*energy + alpha*dim*N; // NYTT UTTRYKK HER
+    //double Ek = (c - 2*alpha*alpha)*energy + alpha*dim*N; // NYTT UTTRYKK HER
     for(int j = 0; j < N; j++) {
         r2 = 0;
         for(int q = 0; q < dim; q++) {
@@ -251,6 +260,6 @@ double Interact::energy_interact(mat &R, double alphanow){
         }
         Vext += c*r2; //calculate potential energy
     }
-    return Ek + Vext;
+    return totsum + Vext;
 }
 
