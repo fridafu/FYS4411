@@ -16,28 +16,28 @@ Impsamp::Impsamp(double s_beta,
     Solver(s_beta, s_hbar, mass,s_omega, s_alpha, s_rho, s_mc, s_N, s_dim, s_h, s_dt)
 {}
 
-void Impsamp::langevin( std::ofstream &myfile){
+vec Impsamp::langevin( std::ofstream &myfile, double alphanow){
     myfile << endl << "Importance Sampling:" << endl;
     start=clock();
     double D = 0.5; //diffusion coefficient
-
+    int num_alpha = 0;
+    vec alpha_vec = ones(1);
     double Ddt = D*dt;
     double Ddt05 = Ddt*0.5;
-
+    //double current_alpha = alphanow;
+    double sumKE = 0;
+    double sum_d_wf = 0;
+    double sum_d_wf_E = 0;
     random_device rd;
     mt19937_64 genMT64(rd());
     normal_distribution<double> gaussianRNG(0.,0.5);
     uniform_real_distribution<double> doubleRNG(0,1);
 
     // loop over alpha when we try out
-    int num_alpha = 0;
-    vec alpha_vec = ones(1);
-    double current_alpha;
-    double sumKE = 0;
     double sdt = sqrt(dt);
     double alpha4 = alpha*(-4);
     while(num_alpha < size(alpha_vec,0)){
-        current_alpha = alpha;//alpha_vec(num_alpha);
+        double current_alpha = alphanow;//alpha_vec(num_alpha);
         // initialize random positions
         mat R3 = init_pos_gaus();
         mat R3new = R3;
@@ -74,18 +74,29 @@ void Impsamp::langevin( std::ofstream &myfile){
                 }
                 // calculate change in energy
                 double deltakinE = energy_real(R3, current_alpha); // CHANGE THIS TO ANALYTICAL; TAKES LESS TIME
+                double dwf = -d_wavefunc(R3new,current_alpha);
                 sumKE += deltakinE;
+                sum_d_wf += dwf;
+                sum_d_wf_E += dwf*deltakinE;
                 }
         }
         num_alpha += 1;
         myfile << scientific << "Acceptance = " << accept/(mc*N) << endl;
     }
-    myfile <<scientific << "Kinetic Energy = " << sumKE/(N*mc) << endl;
-    end=clock();
-    myfile<<scientific<<"Importance sampling CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
-    cout << "Langevin finished! Yay." << endl;
-}
+    double mean_KE = sumKE/(N*mc);
+    double mean_d_wf = sum_d_wf/(N*mc);
+    double mean_d_wf_E = sum_d_wf_E/(N*mc);
 
+    myfile <<scientific << "Kinetic Energy = " << mean_KE << endl;
+    end=clock();
+    myfile<<scientific<<"Impsamp CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
+    cout << "Impsamp finished! " << endl;
+    vec mean_values = zeros(3);
+    mean_values(0) = mean_KE;
+    mean_values(1) = mean_d_wf;
+    mean_values(2) = mean_d_wf_E;
+    return mean_values;
+}
 double Impsamp::energy_impsamp(mat &R, double alpha){
     double Vext = 0;
     double r2 = 0;
@@ -107,5 +118,31 @@ double Impsamp::energy_impsamp(mat &R, double alpha){
         Vext += c*r2; //calculate potential energy
     }
     return Ek + Vext;
+}
+double Impsamp::best_alpha(){
+    ofstream alphafile;
+    alphafile.open("murr.dat");
+    double alpha_the_best;
+    vec mean_values;
+    vec alpha_ = zeros(100);
+    alpha_(0) = 1.0;
+    double gamma = 0.02; //hilsen alocias
+    double tol = 0.01;
+    for(int i=0;i<99;i++){
+        mean_values = langevin(alphafile, alpha_(i));
+        double mean_EK = mean_values(0);
+        double mean_d_wf = mean_values(1);
+        double mean_d_wf_E = mean_values(2);
+        alpha_(i+1) = alpha_(i)- gamma*2*(mean_d_wf_E - mean_EK*mean_d_wf);
+        cout << alpha_(i) << endl;
+        if(abs(alpha_(i+1) - alpha_(i)) < tol){
+            alpha_the_best = alpha_(i+1);
+            alphafile << i << endl; //checking if it oscillates in the bottom
+
+        }
+    }
+    alphafile << alpha_the_best << endl;
+    alphafile.close();
+    return alpha_the_best;
 }
 

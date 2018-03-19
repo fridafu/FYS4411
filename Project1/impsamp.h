@@ -5,7 +5,9 @@
 class Impsamp: public Solver{
 public:
     Impsamp(double s_beta, double s_hbar, double mass, double s_omega, double s_alpha, double s_rho, int s_mc, int s_N, int s_dim, double s_h, double s_dt);
-    void langevin(std::ofstream &myfile);
+    vec langevin(std::ofstream &myfile, double alphanow);
     double energy_impsamp(mat &R, double alpha);
+    double best_alpha();
+
 };
 #endif

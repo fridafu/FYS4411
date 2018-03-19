@@ -80,7 +80,35 @@ double Interact::wavefunc_interact(mat &R, double alpha_, mat &distanceRij){
     double psi = exp(-alpha_*g)*f;
     return psi;
 }
-void Interact::solve_interact( std::ofstream &myfile){
+
+double Interact::d_wavefunc_interact(mat &R, double alpha_, mat &distanceRij){
+    int i; int j;
+    double g = 0;
+    double f = 1;
+    if(dim==1){
+        for(i=0;i<N;i++){
+            g += R(i)*R(i); // take Product of Pi(g(Ri)
+        };
+    } else{
+        for(i=0;i<N;i++){
+            for(j=0;j<dim;j++){
+                g += R(i,j)*R(i,j);//g += dot(R.row(i),R.row(i));
+                f*=(1 - 1/distanceRij(i,j));
+            }
+        }
+    }
+
+    //double f = (1-(a/distance_part(R));
+    double psi = exp(-alpha_*g)*f;
+    return psi*-g;
+}
+//finding the derivative of the wavefunction with respect to alpha
+/*
+double Interact::wf_derivative(){
+    return exp(-alpha_*g)*f*(-g);
+}
+*/
+vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make him take alpha as an input
     myfile << endl << "Calculation with interaction: " << endl;
     start=clock();
     double D = 0.5; //diffusion coefficient
@@ -95,8 +123,10 @@ void Interact::solve_interact( std::ofstream &myfile){
     // loop over alpha when we try out
     int num_alpha = 0;
     vec alpha_vec = ones(1);
-    double current_alpha;
+    double current_alpha = alphanow;
     double sumKE = 0;
+    double sum_d_wf = 0;
+    double sum_d_wf_E = 0;
     double sdt = sqrt(dt);
     double alpha4 = alpha*(-4);
     while(num_alpha < size(alpha_vec,0)){
@@ -140,16 +170,28 @@ void Interact::solve_interact( std::ofstream &myfile){
                 }
                 // calculate change in energy
                 double deltakinE = energy_interact(R3, current_alpha); // YOU CAN USE energy_num HERE AS WELL. IS THIS RIGHT???
+                double dwf = d_wavefunc_interact(R3new,current_alpha, distancematrix);
                 sumKE += deltakinE;
+                sum_d_wf += dwf;
+                sum_d_wf_E += dwf*deltakinE;
                 }
         }
         num_alpha += 1;
         myfile << scientific << "Acceptance = " << accept/(mc*N) << endl;
     }
-    myfile <<scientific << "Kinetic Energy = " << sumKE/(N*mc) << endl;
+    double mean_KE = sumKE/(N*mc);
+    double mean_d_wf = sum_d_wf/(N*mc);
+    double mean_d_wf_E = sum_d_wf_E/(N*mc);
+
+    myfile <<scientific << "Kinetic Energy = " << mean_KE << endl;
     end=clock();
     myfile<<scientific<<"Interaction CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
     cout << "Interaction and all are finished! Yay." << endl;
+    vec mean_values = zeros(2);
+    mean_values(0) = mean_KE;
+    mean_values(1) = mean_d_wf;
+    mean_values(2) = mean_d_wf_E;
+    return mean_values;
 }
 
 double Interact::energy_interact(mat &R, double alphanow){
@@ -174,4 +216,6 @@ double Interact::energy_interact(mat &R, double alphanow){
     }
     return Ek + Vext;
 }
+
+//FINDING BEST PARAMETER:
 

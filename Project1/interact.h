@@ -10,6 +10,8 @@ public:
     mat too_close(mat &Rtull);
     double wavefunc_interact(mat &R, double alphanow, mat &distancematrix);
     double energy_interact(mat &R, double alphanow);
-    void solve_interact(std::ofstream &myfile);
+    vec solve_interact(std::ofstream &myfile, double alphanoe);
+    double d_wavefunc_interact(mat &R, double alphanow, mat &distancematrix);
+
 };
 #endif
