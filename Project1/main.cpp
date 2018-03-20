@@ -16,7 +16,7 @@ int main(){
     double rho = 0.1;
     double dt = 0.001; // [0.001, 0.01]
     double h = 0.001;
-    int mc = 10; // monte carlo cycles
+    int mc = 10000; // monte carlo cycles
 
     int numpart = 10; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
 
