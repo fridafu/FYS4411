@@ -76,10 +76,13 @@ double Interact::wavefunc_interact(mat R, double alpha_, mat distanceRij){
         for(i=0;i<N;i++){
             for(j=0;j<dim;j++){
                 g += newR(i,j)*newR(i,j);//g += dot(R.row(i),R.row(i));
-                if(i!=j){
-                    f*=(1 - a/distanceRij(i,j));
-                }
 
+
+            }
+            for(int p = 0; p < N; p++){
+                if(i != p){
+                    f*=(1 - a/distanceRij(i,p));
+                }
             }
         }
     }
@@ -100,7 +103,11 @@ double Interact::d_wavefunc_interact(mat R, double alpha_, mat distanceRij){
         for(i=0;i<N;i++){
             for(j=0;j<dim;j++){
                 g += R(i,j)*R(i,j);//g += dot(R.row(i),R.row(i));
-                f*=(1 - 1/distanceRij(i,j));
+            }
+            for(int p = i+1; p < N; p++){
+                if(i != p){
+                    f*=(1 - a/distanceRij(i,p));
+                }
             }
         }
     }
@@ -188,10 +195,10 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
                 }*/
 
                 double greens = exp((greensold-greensnew)/(4*Ddt));
-                cout << "greens" << greens << endl;
+//                cout << "greens" << greens << endl;
                 double A = (greens*(wavefunc_interact(R4new,current_alpha, distR4new)))/wavefunc_interact(R4,current_alpha, distancematrix);
                 A *= A;
-                cout << A << endl;
+//                cout << A << endl;
                 // test if new position is more probable than random number between 0 and 1.
                 if((A > 1) || (A > doubleRNG(genMT64))){
                     cout << "blub" << endl;
@@ -221,7 +228,7 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
     double mean_d_wf = sum_d_wf/(N*mc);
     double mean_d_wf_E = sum_d_wf_E/(N*mc);
 
-    myfile <<scientific << "Kinetic Energy = " << mean_KE << endl;
+    myfile <<scientific << "Kinetic Energy = " << mean_KE/N << endl;
     end=clock();
     myfile<<scientific<<"Interaction CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
     cout << "Interaction and all are finished! Yay." << endl;

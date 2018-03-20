@@ -16,7 +16,7 @@ int main(){
     double rho = 0.1;
     double dt = 0.001; // [0.001, 0.01]
     double h = 0.001;
-    int mc = 100000; // monte carlo cycles
+    int mc = 10000; // monte carlo cycles
 
     int numpart = 10; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -28,7 +28,7 @@ int main(){
 
     Solver S(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt); // initialize Solver class
     Bruteforce* B = new Bruteforce(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
-    Impsamp* Imp = new Impsamp(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
+    //Impsamp* Imp = new Impsamp(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
     Interact* Int = new Interact(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
 
     ofstream myfile;
@@ -43,11 +43,11 @@ int main(){
     //myfile.open("interact.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
     B->solve(myfile);
     B->solve_num(myfile);
-    Imp->langevin(myfile,alpha);
+    //Imp->langevin(myfile,alpha);
     Int->solve_interact(myfile, alpha);
     myfile.close();
     //Imp->best_alpha();
     delete B;
-    delete Imp;
+    //delete Imp;
     delete Int;
 }
