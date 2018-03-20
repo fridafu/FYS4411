@@ -14,9 +14,9 @@ using namespace arma;
 int main(){
     double alpha = 0.5;
     double rho = 0.1;
-    double dt = 0.01; // [0.001, 0.01]
+    double dt = 0.001; // [0.001, 0.01]
     double h = 0.001;
-    int mc = 100000; // monte carlo cycles
+    int mc = 10000; // monte carlo cycles
 
     int numpart = 10; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -43,7 +43,7 @@ int main(){
     //myfile.open("interact.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
     B->solve(myfile);
     B->solve_num(myfile);
-    Imp->langevin(myfile,alpha);
+    //Imp->langevin(myfile,alpha);
     Int->solve_interact(myfile, alpha);
     myfile.close();
     //Imp->best_alpha();
