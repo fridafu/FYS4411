@@ -1,3 +1,5 @@
+#include "solver.h"
+
 Solver::Solver(double s_beta,
                double s_hbar,
                double mass,
@@ -65,10 +67,8 @@ mat Solver::init_pos_gaus(){
 }
 mat Solver::distance_part(mat &R){
     mat rij = zeros(N,N);
-    rij.fill(NAN);
     for(int i = 0; i < N; i++){
         for(int j = i+1; j < N; j++){
-
             rij(i,j) = norm(R.row(i) - R.row(j));
             rij(j,i) = rij(i,j);
 
