@@ -152,7 +152,7 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
                 greens = 0;
 
                 for(q=0;q<dim;q++){
-                    R3new(j,q) = R3(j,q) + Ddt*Fq(j,q) + gaussianRNG(genMT64)*sdt;
+                    R3new(j,q) = R3(j,q) + Ddt*Fqnew(j,q) + gaussianRNG(genMT64)*sdt;
                     cout << R3new(j,q) << endl;
                     //Fqnew(j,q) = quantumF(R3, current_alpha,distR3new);//replace
 
