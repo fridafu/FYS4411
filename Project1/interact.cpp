@@ -70,18 +70,20 @@ double Interact::wavefunc_interact(mat R, double alpha_, mat distanceRij){
     newR.col(2) = beta*newR.col(2);
     if(dim==1){
         for(i=0;i<N;i++){
-            g += R(i)*R(i); // take Product of Pi(g(Ri)
+            g += newR(i)*newR(i); // take Product of Pi(g(Ri)
         };
     } else{
         for(i=0;i<N;i++){
             for(j=0;j<dim;j++){
-                g += R(i,j)*R(i,j);//g += dot(R.row(i),R.row(i));
-                f*=(1 - 1/distanceRij(i,j));
+                g += newR(i,j)*newR(i,j);//g += dot(R.row(i),R.row(i));
+                if(i!=j){
+                    f*=(1 - a/distanceRij(i,j));
+                }
+
             }
         }
     }
 
-    //double f = (1-(a/distance_part(R));
     double psi = exp(-alpha_*g)*f;
     return psi;
 }
@@ -118,6 +120,7 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
     random_device rd;
     mt19937_64 genMT64(rd());
     normal_distribution<double> gaussianRNG(0.,0.5);
+
     uniform_real_distribution<double> doubleRNG(0,1);
 
     // loop over alpha when we try out
@@ -134,10 +137,8 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
         //current_alpha = alpha;//alpha_vec(num_alpha);
         // initialize random positions
         mat R4 = init_pos_interact();
-        cout << R4 << endl;
         mat R4new = R4;
         mat distancematrix = distance_part(R4);
-        cout << distancematrix << endl;
         int i; int j; int q;
         mat Fq = quantumF(R4, current_alpha,distancematrix);
 
@@ -145,24 +146,21 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
 
         double accept = 0;
         mat Fqnew = Fq;
-        cout << Fq << endl;
         double greens;
         // iterate over MC cycles
         int p;
         double greensnew;
         double greensold = 0;
-        mat distR3new = distancematrix;
+        mat distR4new = distancematrix;
         for(i=0;i<mc;i++){
             //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
             for(j=0;j<N;j++){
-                mat copyR = R4;
-
                 greensnew = 0;
                 Fqnew = Fq;
                 R4new = R4;
                 for(q=0;q<dim;q++){
 
-                    R4new(j,q) = copyR(j,q) + Ddt*Fq(j,q) + gaussianRNG(genMT64)*sdt;
+                    R4new(j,q) = R4(j,q) + Ddt*Fq(j,q) + gaussianRNG(genMT64)*sdt;
 //                    cout <<Fqnew<<endl;
 //                    cout << R3new(j,q) << endl;
 //                    cout << R3(j,q) << endl;
@@ -170,53 +168,74 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
 
                     //cout << j << q << endl;
                 }
-                cout << R4 << endl;
-//                cout << "Rnew" << endl;
-//                cout << R4new << endl;
-                distR3new = distance_part(R4new);
+
                 Fqnew = quantumF(R4new, current_alpha,distR3new);// REPLACE THIS!!!!!
+
+                greensnew = 0;
+                for(q=0;q<dim;q++){
+
+                    R4new(j,q) = R4(j,q) + Ddt*Fq(j,q) + gaussianRNG(genMT64)*sdt;
+                    //cout << R4(j,q) << endl;
+                    //cout << R4new(j,q) << endl;
+                    //Fqnew(j,q) = quantumF(R4, current_alpha,distR4new);//replace
+                    //cout << j << q << endl;
+                }
+
+
+                distR4new = distance_part(R4new);
+                Fqnew = quantumF(R4new, current_alpha,distR4new);// REPLACE THIS!!!!!
+
                 //cout << Fqnew << endl;
 
                 greensnew = norm(R4.row(j) - R4new.row(j) - Ddt*Fqnew.row(j));
                 greensnew *= greensnew;
                 greensold =norm(R4new.row(j) - R4.row(j) - Ddt*Fq.row(j));
                 greensold *= greensold;
-                //greens = dot(0.5*(Fq.row(j) + Fqnew.row(j)),(Ddt05*(Fq.row(j)-Fqnew.row(j))-R3new.row(j)+R3.row(j)));
+                //greens = dot(0.5*(Fq.row(j) + Fqnew.row(j)),(Ddt05*(Fq.row(j)-Fqnew.row(j))-R4new.row(j)+R4.row(j)));
 
                 /*for(p = 0; p < N; p++){
 
                     if(p!=j){
-                        distR3new(j,p) = norm(R3new.row(j)- R3new.row(p));
-                        distR3new(p,j) = distR3new(j,p);
+                        distR4new(j,p) = norm(R4new.row(j)- R4new.row(p));
+                        distR4new(p,j) = distR4new(j,p);
 
                     }
                 }*/
 
-                greens = exp((greensold-greensnew)/(4*Ddt));
-                cout << "greens" <<greens << endl;
-                double A = greens*(wavefunc_interact(R4new,current_alpha, distR3new))/wavefunc_interact(R4,current_alpha, distancematrix);
+                double greens = exp((greensold-greensnew)/(4*Ddt));
+                cout << "greens" << greens << endl;
+                double A = (greens*(wavefunc_interact(R4new,current_alpha, distR4new)))/wavefunc_interact(R4,current_alpha, distancematrix);
+
                 A *= A;
+                cout << A << endl;
                 // test if new position is more probable than random number between 0 and 1.
                 if((A > 1) || (A > doubleRNG(genMT64))){
+
                     R4.row(j) = R4new.row(j); //accept new position
                     Fq.row(j) = Fqnew.row(j);
                     accept += 1;
-                    distancematrix = distR3new;
+                    distancematrix = distR4new;
 
                 }else {
+
                     R4new.row(j) = R4.row(j);
                     Fqnew.row(j) = Fq.row(j);
                     distR3new = distancematrix;
                     cout << "not accepted"<< endl;
                 }
                 // calculate change in energy
-                double deltakinE = energy_interact(R4, current_alpha); // YOU CAN USE energy_num HERE AS WELL. IS THIS RIGHT???
-                double dwf = d_wavefunc_interact(R4new,current_alpha, distancematrix);
-                sumKE += deltakinE;
-                sum_d_wf += dwf;
-                sum_d_wf_E += dwf*deltakinE;
-                cout << copyR<< endl;
+
+                    R4new(j) = R4(j);
+                    Fqnew(j) = Fq(j);
+                    distR4new = distancematrix;
                 }
+
+                }
+            double deltakinE = energy_interact(R4, current_alpha); // YOU CAN USE energy_num HERE AS WELL. IS THIS RIGHT???
+            double dwf = d_wavefunc_interact(R4new,current_alpha, distancematrix);
+            sumKE += deltakinE;
+            sum_d_wf += dwf;
+            sum_d_wf_E += dwf*deltakinE;
         }
         num_alpha += 1;
         myfile << scientific << "Acceptance = " << accept/(mc*N) << endl;
@@ -236,6 +255,7 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
     return mean_values;
 }
 
+<<<<<<< HEAD
 mat Interact::quantumF(mat R_, double alpha_, mat rij){
     mat ngg = nablaphi(R_,alpha_);
     mat nff = nablaf(R_,rij);
@@ -243,6 +263,15 @@ mat Interact::quantumF(mat R_, double alpha_, mat rij){
 }
 
 mat Interact::lapphi(mat Rn, double alpha_){
+=======
+mat Interact::quantumF(mat R, double alpha_, mat rij){
+    mat ngg = nablaphi(R,alpha_);
+    mat nff = nablaf(R,rij);
+    return 2*ngg + 2*nff;
+}
+
+mat Interact::lapphi(mat R, double alpha_){
+>>>>>>> 391aff2f9b11deecdbfe585c1c025f27ff098c5e
     mat lphi = zeros(N);
     for(int k = 0; k < N; k++){
         if(dim == 3){
@@ -255,9 +284,15 @@ mat Interact::lapphi(mat Rn, double alpha_){
     return lphi;
 }
 
+<<<<<<< HEAD
 mat Interact::nablaphi(mat R_, double alpha_){
     mat newR = R_;
     newR.col(2) = R_.col(2)*beta;
+=======
+mat Interact::nablaphi(mat R, double alpha_){
+    mat newR = R;
+    newR.col(2) = R.col(2)*beta;
+>>>>>>> 391aff2f9b11deecdbfe585c1c025f27ff098c5e
     return -2*alpha_*newR;
 }
 

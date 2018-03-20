@@ -51,6 +51,7 @@ double Solver::wavefunc(mat &R, double alpha_){
     double psi = exp(-alpha_*g)*f;
     return psi;
 }
+
 double Solver::d_wavefunc(mat &R, double alpha_){
     //bool interact = y/n ??
     int i; int j;
