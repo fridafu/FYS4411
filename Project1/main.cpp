@@ -16,10 +16,10 @@ int main(){
     double rho = 0.1;
     double dt = 0.001;
     double h = 0.001;
-    int mc = 1000; // monte carlo cycles
-    int numpart = 100; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
+    int mc = 10000; // monte carlo cycles
+    int numpart = 10; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
     int howmanyDs = 3;
-    double beta = 1;
+    double beta = 2.82843;
     double hbar = 1;
     double mass = 1;
     double omega = 1;
@@ -29,14 +29,14 @@ int main(){
     Impsamp* Imp = new Impsamp(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
     Interact* Int = new Interact(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
 
-    //ofstream myfile;
-    //myfile.open("classy.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+    ofstream myfile;
+    myfile.open("interact.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
     //B->solve(myfile);
     //B->solve_num(myfile);
-    //Imp->langevin(myfile);
-    //Int->solve_interact(myfile);
-    //myfile.close();
-    Imp->best_alpha();
+    //Imp->langevin(myfile,alpha);
+    Int->solve_interact(myfile, alpha);
+    myfile.close();
+    //Imp->best_alpha();
     delete B;
     delete Imp;
     delete Int;
