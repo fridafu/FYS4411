@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
 #include "../Project1/solver.h"
+#include "../Project1/bruteforce.h"
 
 using namespace testing;
 
@@ -22,7 +23,8 @@ TEST(project1test, wavefunction)
 
     Solver S(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
 //  mat R = ones(numpart,howmanyDs)*rho;//S.init_pos();
-    mat R = S.init_pos();
+    Bruteforce* B = new Bruteforce(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
+    mat R = B->init_pos();
 
     double g = 1;
     for(int i = 0; i < numpart; i++){
@@ -50,6 +52,7 @@ TEST(project1test, wavefunction)
 
     EXPECT_NEAR(Esolver, energy, 1e-4) << "numerical energy not calculated properly";
     EXPECT_NEAR(Esolver, energy2, 1e-4) << "numerical energy not caclulated properly due to variations in wavefunc";
+    delete B;
 }
 
 TEST(project1test, interaction){
@@ -66,8 +69,8 @@ TEST(project1test, interaction){
     double h = 0.001;
 
     Solver S(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
-
-    mat Rij = S.init_pos();
+    Bruteforce* B = new Bruteforce(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
+    mat Rij = B->init_pos();
     mat distance = S.distance_part(Rij);
 
     int g = 0;
@@ -111,4 +114,5 @@ TEST(project1test, interaction){
     double shouldbe = (numpart-1)*sqrt(6);
 
     EXPECT_NEAR(sumR2, shouldbe, 1e-4) << "distance between |Ri-Rj| not calculated correctly";
+    delete B;
 }

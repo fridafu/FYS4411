@@ -1,33 +1,53 @@
 #include <iostream>
 #include "solver.h"
 #include "solver.cpp"
+#include "bruteforce.h"
+#include "bruteforce.cpp"
+#include "impsamp.h"
+#include "impsamp.cpp"
+#include "interact.h"
+#include "interact.cpp"
 #include "armadillo"
-
 using namespace std;
 using namespace arma;
-
 
 int main(){
     double alpha = 0.5;
     double rho = 0.1;
-    double dt = 0.001;
+    double dt = 0.001; // [0.001, 0.01]
     double h = 0.001;
-    int mc = 10; // monte carlo cycles
-    int numpart = 100; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
+    int mc = 100000; // monte carlo cycles
+
+    int numpart = 10; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
+
     int howmanyDs = 3;
-    double beta = 1;
+    double beta = 2.82843;
     double hbar = 1;
     double mass = 1;
     double omega = 1;
 
     Solver S(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt); // initialize Solver class
+    Bruteforce* B = new Bruteforce(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
+    Impsamp* Imp = new Impsamp(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
+    Interact* Int = new Interact(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
+
     ofstream myfile;
-    /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-    /*myfile.open("n10_test.dat");
-    S.solve(myfile);
-    S.solve_num(myfile);
-    S.langevin(myfile);
+
+
+    myfile.open("All.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+    //B->solve(myfile);
+    //B->solve_num(myfile);
+    //Imp->langevin(myfile);
+    //Int->solve_interact(myfile);
+
+    //myfile.open("interact.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+    B->solve(myfile);
+    B->solve_num(myfile);
+    Imp->langevin(myfile,alpha);
+    Int->solve_interact(myfile, alpha);
     myfile.close();
-    */
-    S.init_pos_interact();
+    //Imp->best_alpha();
+    delete B;
+    delete Imp;
+    delete Int;
 }
