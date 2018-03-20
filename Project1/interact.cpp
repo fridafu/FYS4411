@@ -84,7 +84,6 @@ double Interact::wavefunc_interact(mat R, double alpha_, mat distanceRij){
         }
     }
 
-    //double f = (1-(a/distance_part(R));
     double psi = exp(-alpha_*g)*f;
     return psi;
 }
@@ -207,12 +206,13 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
                     distR4new = distancematrix;
                 }
                 // calculate change in energy
-                double deltakinE = energy_interact(R4, current_alpha); // YOU CAN USE energy_num HERE AS WELL. IS THIS RIGHT???
-                double dwf = d_wavefunc_interact(R4new,current_alpha, distancematrix);
-                sumKE += deltakinE;
-                sum_d_wf += dwf;
-                sum_d_wf_E += dwf*deltakinE;
+
                 }
+            double deltakinE = energy_interact(R4, current_alpha); // YOU CAN USE energy_num HERE AS WELL. IS THIS RIGHT???
+            double dwf = d_wavefunc_interact(R4new,current_alpha, distancematrix);
+            sumKE += deltakinE;
+            sum_d_wf += dwf;
+            sum_d_wf_E += dwf*deltakinE;
         }
         num_alpha += 1;
         myfile << scientific << "Acceptance = " << accept/(mc*N) << endl;

@@ -73,7 +73,7 @@ vec Impsamp::langevin( std::ofstream &myfile, double alphanow){
                     Fqnew(j) = Fq(j);
                 }
                 // calculate change in energy
-                double deltakinE = energy_real(R3, current_alpha); // CHANGE THIS TO ANALYTICAL; TAKES LESS TIME
+                double deltakinE = energy_num(R3, current_alpha); // energy_real can also be used? that makes no sense though, since its already perfect..
                 double dwf = -d_wavefunc(R3new,current_alpha);
                 sumKE += deltakinE;
                 sum_d_wf += dwf;

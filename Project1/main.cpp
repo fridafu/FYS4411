@@ -16,7 +16,7 @@ int main(){
     double rho = 0.1;
     double dt = 0.001; // [0.001, 0.01]
     double h = 0.001;
-    int mc = 10000; // monte carlo cycles
+    int mc = 100000; // monte carlo cycles
 
     int numpart = 10; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -34,16 +34,16 @@ int main(){
     ofstream myfile;
 
 
-    myfile.open("classy.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+    myfile.open("All.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
     //B->solve(myfile);
     //B->solve_num(myfile);
     //Imp->langevin(myfile);
     //Int->solve_interact(myfile);
 
     //myfile.open("interact.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-    //B->solve(myfile);
-    //B->solve_num(myfile);
-    //Imp->langevin(myfile,alpha);
+    B->solve(myfile);
+    B->solve_num(myfile);
+    Imp->langevin(myfile,alpha);
     Int->solve_interact(myfile, alpha);
     myfile.close();
     //Imp->best_alpha();
