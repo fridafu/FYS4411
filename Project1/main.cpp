@@ -14,7 +14,7 @@ using namespace arma;
 int main(){
     double alpha = 0.5;
     double rho = 0.1;
-    double dt = 0.001; // [0.001, 0.01]
+    double dt = 0.01; // [0.001, 0.01]
     double h = 0.001;
     int mc = 10; // monte carlo cycles
 
@@ -28,7 +28,7 @@ int main(){
 
     Solver S(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt); // initialize Solver class
     Bruteforce* B = new Bruteforce(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
-    Impsamp* Imp = new Impsamp(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
+    //Impsamp* Imp = new Impsamp(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
     Interact* Int = new Interact(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
 
     ofstream myfile;
@@ -48,6 +48,6 @@ int main(){
     myfile.close();
     //Imp->best_alpha();
     delete B;
-    delete Imp;
+    //delete Imp;
     delete Int;
 }
