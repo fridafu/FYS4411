@@ -11,12 +11,16 @@ public:
     mat too_close(mat &Rtull);
     double wavefunc_interact(mat &R, double alphanow, mat &distancematrix);
     double energy_interact(mat &R, double alphanow);
-    void solve_interact(std::ofstream &myfile);
-    mat lapphi(mat &R);
-    mat nablaphi(mat &R);
-    mat nablaphinablaF(mat &R, mat &distR);
+    vec solve_interact(std::ofstream &myfile, double alphanoe);
+    double d_wavefunc_interact(mat &R, double alphanow, mat &distancematrix);
+
+    mat lapphi(mat &R, double alpha_);
+    mat nablaphi(mat &R, double alpha_);
+    mat nablaphinablaF(mat &R, mat &distR, double alpha_);
     mat nablaf(mat &R, mat &distR);
     mat doublesum(mat &R, mat &distanceR);
     mat suma2(mat &distanceR);
+    mat quantumF(mat &R, double alpha_, mat &rij);
+
 };
 #endif

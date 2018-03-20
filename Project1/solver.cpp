@@ -51,6 +51,25 @@ double Solver::wavefunc(mat &R, double alpha_){
     double psi = exp(-alpha_*g)*f;
     return psi;
 }
+double Solver::d_wavefunc(mat &R, double alpha_){
+    //bool interact = y/n ??
+    int i; int j;
+    double g = 0;
+    if(dim==1){
+        for(i=0;i<N;i++){
+            g += R(i)*R(i); // take Product of Pi(g(Ri)
+        }
+    } else{
+        for(i=0;i<N;i++){
+            for(j=0;j<dim;j++){
+                g += R(i,j)*R(i,j);//g += dot(R.row(i),R.row(i));
+            }
+        }
+    }
+    double f = 1; //no interaction here!!
+    double psi = exp(-alpha_*g)*f;
+    return psi*(-g);
+}
 mat Solver::init_pos_gaus(){
     random_device rd;
     mt19937_64 genMT64(rd());
@@ -103,8 +122,8 @@ double Solver::energy_num(mat &R, double alphanow){
     return Ek + Vext;
 }
 
-mat Solver::F(mat &R_){
-    return -4*R_*alpha;
+mat Solver::F(mat &R_, double alpha_){
+    return -4*R_*alpha_;
 }
 
 double Solver::energy_real(mat &R, double alpha){ //done optimization
