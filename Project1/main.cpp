@@ -20,8 +20,8 @@ int main(){
 
     int numpart = 10; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    int howmanyDs = 3;
-    double beta = 2.82843;
+    int howmanyDs = 2;
+    double beta = 1;//2.82843;
     double hbar = 1;
     double mass = 1;
     double omega = 1;
@@ -34,7 +34,7 @@ int main(){
     ofstream myfile;
 
 
-    myfile.open("All.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+    myfile.open("All4.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
     //B->solve(myfile);
     //B->solve_num(myfile);
     //Imp->langevin(myfile);

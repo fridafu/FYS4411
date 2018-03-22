@@ -1,6 +1,7 @@
 #include "interact.h"
 #include "solver.h"
 
+
 Interact::Interact(double s_beta,
                    double s_hbar,
                    double mass,
@@ -18,7 +19,9 @@ Interact::Interact(double s_beta,
 
 mat Interact::init_pos_interact(){
     mat position = init_pos_gaus();
+
     mat comfort_zone = too_close(position);
+    cout << "cf" << comfort_zone << endl;
     //cout << comfort_zone << endl;
     //cout << min(min(distance_part(comfort_zone))) << endl;
     //mat zeropos = zeros(N, dim);
@@ -33,32 +36,39 @@ mat Interact::too_close(mat Rtull){
     random_device rd;
     mt19937_64 genMT64(rd());
     normal_distribution<double> gaussianRNG(0,0.5);
+
     mat closeness = distance_part(Rtull);
+
     double sdt = sqrt(dt);
     int counter = 0;
-    double a = 0.043;
     int get_away_you_stink = 1;
     while(get_away_you_stink != 0){
+        //cout << "while" << endl;
         counter += 1;
         get_away_you_stink = 0;
         int o; int p; int dude;
         for(o=0;o<N;o++){
+            //cout << "for o" << endl;
 
             for(p=o+1;p<N;p++){
+                //cout << "for p" << endl;
                 //cout << closeness(o,p) << endl;
                 if(closeness(o,p) < a){
+                    //cout << "ifclose" << endl;
                     get_away_you_stink = -1;
                     for(dude=0;dude<dim;dude++){
+                        //cout << "for every dim new position is made" << endl;
                         Rtull(o,dude) = gaussianRNG(genMT64)*sdt;
-                        //closeness(o,p) = norm(R.row(o)-R.row(p));
+                        closeness(o,p) = norm(Rtull.row(o)-Rtull.row(p));
                         //cout << Rtull(o,dude)<<endl;
                     }
                 }
             }
-            closeness = distance_part(Rtull);
+            //closeness = distance_part(Rtull); //test
 
         }
     }
+
     return Rtull;
 }
 
@@ -67,21 +77,28 @@ double Interact::wavefunc_interact(mat R, double alpha_, mat distanceRij){
     double g = 0;
     double f = 1;
     mat newR = R;
+
+    if(dim==3){
     newR.col(2) = beta*newR.col(2);
+    }
+
     if(dim==1){
         for(i=0;i<N;i++){
-            g += newR(i)*newR(i); // take Product of Pi(g(Ri)
-        };
+            g += newR(i)*newR(i); // take Product of Pi(g(Ri)            
+
+        }
     } else{
         for(i=0;i<N;i++){
-            for(j=0;j<dim;j++){
-                g += newR(i,j)*newR(i,j);//g += dot(R.row(i),R.row(i));
-                if(i!=j){
-                    f*=(1 - a/distanceRij(i,j));
+            for(int l=i+1;l<N;l++){
+                for(j=0;j<dim;j++){
+                    g += newR(i,j)*newR(i,j);//g += dot(R.row(i),R.row(i));
+                    if(i!=l){
+                        f*=(1 - a/distanceRij(i,l));
                 }
-
+            }
             }
         }
+
     }
 
     double psi = exp(-alpha_*g)*f;
@@ -112,6 +129,7 @@ double Interact::d_wavefunc_interact(mat R, double alpha_, mat distanceRij){
 
 vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make him take alpha as an input
     myfile << endl << "Calculation with interaction: " << endl;
+
     start=clock();
     double D = 0.5; //diffusion coefficient
     double Ddt = D*dt;
@@ -129,11 +147,13 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
     double current_alpha = alphanow;
     double sumKE = 0;
     double sum_d_wf = 0;
+    double sumKEsq = 0;
     double sum_d_wf_E = 0;
     double sdt = sqrt(dt);
     double randomno = 0;
     double alpha4 = current_alpha*(-4);
     while(num_alpha < size(alpha_vec,0)){
+
         //current_alpha = alpha;//alpha_vec(num_alpha);
         // initialize random positions
         mat R4 = init_pos_interact();
@@ -142,21 +162,19 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
         //cout << distancematrix << endl;
         int i; int j; int q;
         mat Fq = quantumF(R4, current_alpha,distancematrix);
-
         //initialize expectation values
-        mat R4plus = zeros(N,dim);
-        mat R4minus = zeros(N,dim);
         double accept = 0;
         mat Fqnew = Fq;
         double greens;
-        // iterate over MC cycles
         int p;
         double greensnew;
         double greensold = 0;
         mat distR4new = distancematrix;
         for(i=0;i<mc;i++){
+
             //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
             for(j=0;j<N;j++){
+
                 greensnew = 0;
                 for(q=0;q<dim;q++){
 
@@ -170,7 +188,6 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
 
                 distR4new = distance_part(R4new);
                 Fqnew = quantumF(R4new, current_alpha,distR4new);// REPLACE THIS!!!!!
-                //cout << Fqnew << endl;
 
                 greensnew = norm(R4.row(j) - R4new.row(j) - Ddt*Fqnew.row(j));
                 greensnew *= greensnew;
@@ -188,13 +205,13 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
                 }*/
 
                 double greens = exp((greensold-greensnew)/(4*Ddt));
-                cout << "greens" << greens << endl;
-                double A = (greens*(wavefunc_interact(R4new,current_alpha, distR4new)))/wavefunc_interact(R4,current_alpha, distancematrix);
+
+                double A = (wavefunc_interact(R4new,current_alpha, distR4new))/wavefunc_interact(R4,current_alpha, distancematrix);
                 A *= A;
-                cout << A << endl;
+                A = greens*A;
                 // test if new position is more probable than random number between 0 and 1.
                 if((A > 1) || (A > doubleRNG(genMT64))){
-                    cout << "blub" << endl;
+
                     R4(j) = R4new(j); //accept new position
                     Fq(j) = Fqnew(j);
                     accept += 1;
@@ -213,15 +230,21 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
             sumKE += deltakinE;
             sum_d_wf += dwf;
             sum_d_wf_E += dwf*deltakinE;
+
+            sumKEsq += deltakinE*deltakinE;
         }
         num_alpha += 1;
         myfile << scientific << "Acceptance = " << accept/(mc*N) << endl;
     }
+
     double mean_KE = sumKE/(N*mc);
     double mean_d_wf = sum_d_wf/(N*mc);
     double mean_d_wf_E = sum_d_wf_E/(N*mc);
 
-    myfile <<scientific << "Kinetic Energy = " << mean_KE << endl;
+    myfile << "Energy squared = "<< sumKEsq/(N*mc) << endl;
+    myfile << "Variance = " << sumKEsq/(N*mc) - (mean_KE*mean_KE)<< endl;
+
+    myfile <<scientific << "Energy = " << mean_KE << endl;
     end=clock();
     myfile<<scientific<<"Interaction CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
     cout << "Interaction and all are finished! Yay." << endl;
@@ -240,12 +263,21 @@ mat Interact::quantumF(mat R, double alpha_, mat rij){
 
 mat Interact::lapphi(mat R, double alpha_){
     mat lphi = zeros(N);
+    double energy_r = 0;
+    /*for(int i = 0; i < N; i++){
+        for(int j = 0; j < dim; j++){
+            energy_r += R(i,j)*R(i,j);
+        }
+    }
+    lphi = -2*alpha_*((dim-1)+beta-2*alpha_*energy_r);
+    return lphi;*/
+
     for(int k = 0; k < N; k++){
         if(dim == 3){
             R.col(2) = beta*R.col(2);
-            lphi(k) = -2*alpha_*(2 + beta -2*alpha_*dot(R.row(k),R.row(k))); // write more effecient, calculate 2alpha and beta^2 as own variables
+            lphi(k) = -2*alpha_*(dim-1 + beta -2*alpha_*dot(R.row(k),R.row(k))); // write more effecient, calculate 2alpha and beta^2 as own variables
         } else{
-            lphi(k) = -2*alpha_*((3-dim) + beta -2*alpha_*dot(R.row(k),R.row(k)));
+            lphi(k) = -2*alpha_*((dim-1) -2*alpha_*dot(R.row(k),R.row(k)));
         }
     }
     return lphi;
@@ -253,8 +285,11 @@ mat Interact::lapphi(mat R, double alpha_){
 
 mat Interact::nablaphi(mat R, double alpha_){
     mat newR = R;
-    newR.col(2) = R.col(2)*beta;
+    if(dim==3){
+        newR.col(2) = R.col(2)*beta;
+    }
     return -2*alpha_*newR;
+
 }
 
 mat Interact::nablaphinablaF(mat R, mat distR, double alpha_){
@@ -294,6 +329,7 @@ mat Interact::nablaf(mat R, mat distR){
             }
         }
     }
+
     return sum;
 }
 
@@ -312,6 +348,7 @@ mat Interact::suma2(mat distanceR){
             }
         }
     }
+
     return suma;
 }
 
@@ -326,12 +363,30 @@ double Interact::energy_interact(mat R, double alphanow){
     mat nf = nablaf(R,rkj);
     mat suma = suma2(rkj);
     double totsum = 0;
+    double lphisum = 0;
+    double nfsum = 0;
+    double sumasum = 0;
+    double nphisum = 0;
+    double energysq = 0;
+
     for(int k = 0; k < N; k++){
-        energy(k) = lphi(k) + dot(nphi.row(k),nf.row(k)) + dot(nf.row(k),nf.row(k)) + suma(k);
+        lphisum += lphi(k);
+        nphisum += 2*dot(nphi.row(k),nf.row(k));
+        nfsum += dot(nf.row(k),nf.row(k));
+        sumasum += suma(k);
+
+        energy(k) = -0.5*(lphi(k) + 2*dot(nphi.row(k),nf.row(k)) + dot(nf.row(k),nf.row(k)) + suma(k));
         totsum += energy(k);
+        energysq += energy(k)*energy(k);
     }
-    double c = 0.5*m*omega*omega;
-    //double Ek = (c - 2*alpha*alpha)*energy + alpha*dim*N; // NYTT UTTRYKK HER
+
+
+    cout << "suma2 = " <<sumasum<< endl;
+    cout << "nablaf = " << nfsum << endl;
+    cout << "nphi = " << nphisum << endl;
+    cout << "lphi = " << lphisum << endl;
+    cout << "totsum(energy) = " << totsum << endl;
+    double c = 0.5;
     for(int j = 0; j < N; j++) {
         r2 = 0;
         for(int q = 0; q < dim; q++) {
@@ -339,7 +394,8 @@ double Interact::energy_interact(mat R, double alphanow){
         }
         Vext += c*r2; //calculate potential energy
     }
-    return totsum + Vext;
+    cout << Vext << endl;
+    return totsum + Vext /*+ lphi*/;
 }
 
 
