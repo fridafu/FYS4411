@@ -1,7 +1,6 @@
 #include "interact.h"
 #include "solver.h"
 
-
 Interact::Interact(double s_beta,
                    double s_hbar,
                    double mass,
@@ -90,10 +89,11 @@ double Interact::wavefunc_interact(mat R, double alpha_, mat distanceRij){
     } else{
         for(i=0;i<N;i++){
             for(int l=i+1;l<N;l++){
+                if(i!=l){
+                    f*=(1 - a/distanceRij(i,l));
                 for(j=0;j<dim;j++){
                     g += newR(i,j)*newR(i,j);//g += dot(R.row(i),R.row(i));
-                    if(i!=l){
-                        f*=(1 - a/distanceRij(i,l));
+
                 }
             }
             }
@@ -138,7 +138,6 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
     random_device rd;
     mt19937_64 genMT64(rd());
     normal_distribution<double> gaussianRNG(0.,0.5);
-
     uniform_real_distribution<double> doubleRNG(0,1);
 
     // loop over alpha when we try out
@@ -225,7 +224,7 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
                 // calculate change in energy
 
                 }
-            double deltakinE = energy_interact(R4, current_alpha); // YOU CAN USE energy_num HERE AS WELL. IS THIS RIGHT???
+            double deltakinE = energy_interact(R4, current_alpha); //
             double dwf = d_wavefunc_interact(R4new,current_alpha, distancematrix);
             sumKE += deltakinE;
             sum_d_wf += dwf;
@@ -380,7 +379,6 @@ double Interact::energy_interact(mat R, double alphanow){
         energysq += energy(k)*energy(k);
     }
 
-
     cout << "suma2 = " <<sumasum<< endl;
     cout << "nablaf = " << nfsum << endl;
     cout << "nphi = " << nphisum << endl;
@@ -397,6 +395,3 @@ double Interact::energy_interact(mat R, double alphanow){
     cout << Vext << endl;
     return totsum + Vext /*+ lphi*/;
 }
-
-
-

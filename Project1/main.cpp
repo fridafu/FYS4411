@@ -34,7 +34,7 @@ int main(){
     ofstream myfile;
 
 
-    myfile.open("All4.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+    myfile.open("All6.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
     //B->solve(myfile);
     //B->solve_num(myfile);
     //Imp->langevin(myfile);
