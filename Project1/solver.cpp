@@ -85,7 +85,7 @@ mat Solver::init_pos_gaus(){
     }
     return position;
 }
-mat Solver::distance_part(mat &R){
+mat Solver::distance_part(mat R){
     mat rij = zeros(N,N);
     for(int i = 0; i < N; i++){
         for(int j = i+1; j < N; j++){

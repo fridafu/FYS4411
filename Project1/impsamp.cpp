@@ -73,7 +73,7 @@ vec Impsamp::langevin( std::ofstream &myfile, double alphanow){
                     Fqnew(j) = Fq(j);
                 }
                 // calculate change in energy
-                double deltakinE = energy_num(R3, current_alpha); // energy_real can also be used? that makes no sense though, since its already perfect..
+                double deltakinE = energy_real(R3, current_alpha); // energy_real can also be used? that makes no sense though, since its already perfect..
                 double dwf = -d_wavefunc(R3new,current_alpha);
                 sumKE += deltakinE;
                 sum_d_wf += dwf;
@@ -109,7 +109,7 @@ double Impsamp::energy_impsamp(mat &R, double alpha){
     }
 
     double c = 0.5*m*omega*omega;
-    double Ek = (c - 2*alpha*alpha)*energy + alpha*dim*N; // NYTT UTTRYKK HER
+    double Ek = (c - 2*alpha*alpha)*energy + alpha*dim*N;
     for(int j = 0; j < N; j++) {
         r2 = 0;
         for(int q = 0; q < dim; q++) {

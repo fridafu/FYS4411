@@ -1,6 +1,7 @@
 #ifndef SOLVER_H
 #define SOLVER_H
 
+#include <gtest/gtest.h>
 #include <iostream>
 #include <fstream>
 #include <random>
@@ -33,7 +34,7 @@ public:
     double wavefunc(mat &R, double alpha_);
     double d_wavefunc(mat &R, double alpha_);
     mat init_pos_gaus();
-    mat distance_part(mat &R);
+    mat distance_part(mat R);
     double energy_num(mat &R, double alpha);
     mat F(mat &R_, double alpha_);
     double energy_real(mat &R, double alpha); //
