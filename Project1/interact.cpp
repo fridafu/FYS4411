@@ -77,9 +77,9 @@ double Interact::wavefunc_interact(mat R, double alpha_, mat distanceRij){
     double f = 1;
     mat newR = R;
 
-    if(dim==3){
-    newR.col(2) = beta*newR.col(2);
-    }
+//    if(dim==3){
+//    newR.col(2) = beta*newR.col(2);
+//    }
 
     if(dim==1){
         for(i=0;i<N;i++){
@@ -88,12 +88,15 @@ double Interact::wavefunc_interact(mat R, double alpha_, mat distanceRij){
         }
     } else{
         for(i=0;i<N;i++){
-            for(int l=i+1;l<N;l++){
+            for(int l=0;l<N;l++){
                 if(i!=l){
                     f*=(1 - a/distanceRij(i,l));
                 for(j=0;j<dim;j++){
-                    g += newR(i,j)*newR(i,j);//g += dot(R.row(i),R.row(i));
-
+                    if(j==2){
+                        g += beta*beta*newR(i,j)*newR(i,j);
+                    } else{
+                        g += newR(i,j)*newR(i,j);//g += dot(R.row(i),R.row(i));
+                    }
                 }
             }
             }
@@ -164,8 +167,6 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
         //initialize expectation values
         double accept = 0;
         mat Fqnew = Fq;
-        double greens;
-        int p;
         double greensnew;
         double greensold = 0;
         mat distR4new = distancematrix;
@@ -332,6 +333,78 @@ mat Interact::nablaf(mat R, mat distR){
     return sum;
 }
 
+mat Interact::suma2(mat distanceR, mat R){
+    mat summm = zeros(N);
+    double rkj;
+    for(int k = 0; k < N; k++){
+        for(int j = 0; j < N; j++){
+            if(k != j){
+                rkj = distanceR(k,j);
+                summm(k) = (dim - 1)*a/(rkj*rkj*(rkj - a)) + (a*a - 2*a*rkj)/(rkj*rkj*(rkj - a)*(rkj - a));
+//                summm(k) = ((dim - 1)*a*rkj - (dim - 1)*a*a + a*a - 2*a*rkj)/(rkj*rkj*(rkj-a)*(rkj-a));
+            }
+        }
+    }
+    return summm;
+}
+
+mat Interact::newnablaf(mat init_distance, mat R){
+    mat s = zeros(N,dim);
+    double rkj = 0;
+    double rkja = 0;
+    mat vecrkj;
+    mat vecrmi;
+    //mat sumtot = zeros(N);
+    for(int k = 0; k < N; k++){
+        for(int j = 0; j < N; j++){
+            if(k != j){
+                rkj = init_distance(k,j);
+                rkja = (rkj - a);
+                vecrkj = R.row(k) - R.row(j);
+                s.row(k) = vecrkj*a/(rkj*rkj*rkja);
+            }
+        }
+    }
+    return s;
+}
+
+mat Interact::nablafsquared(mat init_distance, mat R){
+    mat s1 = zeros(N,dim);
+    mat s2 = zeros(N,dim);
+    double rkj = 0; double rmi = 0;
+    double rkja = 0; double rmia = 0;
+    double a2 = a*a;
+    mat vecrkj;
+    mat vecrmi;
+    mat sumtot = zeros(N);
+    for(int k = 0; k < N; k++){
+        for(int j = 0; j < N; j++){
+            if(k != j){
+                rkj = init_distance(k,j);
+                rkja = (rkj - a);
+                vecrkj = R.row(k) - R.row(j);
+                s1.row(k) = vecrkj*a/(rkj*rkj*rkja);
+            }
+        }
+    }
+    for(int m = 0; m < N; m++){
+        for(int i = 0; i < N; i++){
+            if(m != i){
+                rmi = init_distance(m,i);
+                rmia = (rmi - a);
+                vecrmi = R.row(m) - R.row(i);
+                s2.row(m) = vecrmi*a/(rmi*rmi*rmia);
+            }
+        }
+    }
+    for(int p = 0; p < N; p++){
+        sumtot(p) = dot(s1.row(p), s2.row(p));
+        //REQUIRE(s1 == runsuma)
+    }
+
+    return sumtot;
+}
+/*
 mat Interact::suma2(mat distanceR){
     int k; int j;
     mat suma = zeros(N);
@@ -339,7 +412,7 @@ mat Interact::suma2(mat distanceR){
     double rkja2 = 0;
     double a2 = a*a;
     for(k = 0; k < N; k++){
-        for(j = 0; j < N; j++){
+        for(j =0; j < N; j++){
             if(k != j){
                 rkj = distanceR(k,j);
                 rkja2 = (rkj - a)*(rkj - a);
@@ -350,31 +423,34 @@ mat Interact::suma2(mat distanceR){
 
     return suma;
 }
+*/
 
 double Interact::energy_interact(mat R, double alphanow){
     mat energy = zeros(N);
     double r2 = 0;
-    int i; int j;
     double Vext = 0;
     mat rkj = distance_part(R);
     mat lphi = lapphi(R, alphanow);
     mat nphi = nablaphi(R, alphanow);
-    mat nf = nablaf(R,rkj);
-    mat suma = suma2(rkj);
+    mat nf = newnablaf(rkj,R);//nablaf(R,rkj);
+    mat suma = suma2(rkj, R);
+    mat nablaf2 = nablafsquared(rkj, R);
     double totsum = 0;
     double lphisum = 0;
     double nfsum = 0;
     double sumasum = 0;
     double nphisum = 0;
     double energysq = 0;
-
+    double sumnf2 = 0;
+    double sumnf2test = 0;
     for(int k = 0; k < N; k++){
         lphisum += lphi(k);
         nphisum += 2*dot(nphi.row(k),nf.row(k));
         nfsum += dot(nf.row(k),nf.row(k));
         sumasum += suma(k);
-
-        energy(k) = -0.5*(lphi(k) + 2*dot(nphi.row(k),nf.row(k)) + dot(nf.row(k),nf.row(k)) + suma(k));
+        sumnf2 += nablaf2(k);
+        sumnf2test += dot(nf.row(k), nf.row(k));
+        energy(k) = -0.5*(lphi(k) + 2*dot(nphi.row(k),nf.row(k)) + nablaf2(k) + suma(k));
         totsum += energy(k);
         energysq += energy(k)*energy(k);
     }
@@ -383,6 +459,7 @@ double Interact::energy_interact(mat R, double alphanow){
     cout << "nablaf = " << nfsum << endl;
     cout << "nphi = " << nphisum << endl;
     cout << "lphi = " << lphisum << endl;
+    cout << "difference nf^2 = " << abs(sumnf2 - sumnf2test) << endl;
     cout << "totsum(energy) = " << totsum << endl;
     double c = 0.5;
     for(int j = 0; j < N; j++) {
@@ -392,6 +469,6 @@ double Interact::energy_interact(mat R, double alphanow){
         }
         Vext += c*r2; //calculate potential energy
     }
-    cout << Vext << endl;
+    cout << "Vext = " << Vext << endl;
     return totsum + Vext /*+ lphi*/;
 }

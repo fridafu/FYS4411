@@ -1,7 +1,6 @@
 #ifndef SOLVER_H
 #define SOLVER_H
 
-#include <gtest/gtest.h>
 #include <iostream>
 #include <fstream>
 #include <random>

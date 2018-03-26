@@ -18,8 +18,10 @@ public:
     mat nablaphinablaF(mat R, mat distR, double alpha_);
     mat nablaf(mat R, mat distR);
     mat doublesum(mat R, mat distanceR);
-    mat suma2(mat distanceR);
+    mat suma2(mat distanceR, mat R);
     mat quantumF(mat R, double alpha_, mat rij);
+    mat nablafsquared(mat init_distance, mat R);
+    mat newnablaf(mat init_distance, mat R);
 
 };
 #endif
