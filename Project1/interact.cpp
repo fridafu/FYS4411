@@ -16,6 +16,7 @@ Interact::Interact(double s_beta,
     Solver(s_beta, s_hbar, mass,s_omega, s_alpha, s_rho, s_mc, s_N, s_dim, s_h, s_dt)
 {a = 0.0043;}
 
+
 mat Interact::init_pos_interact(){
     mat position = init_pos_gaus();
 
@@ -76,10 +77,10 @@ double Interact::wavefunc_interact(mat R, double alpha_, mat distanceRij){
     double g = 0;
     double f = 1;
     mat newR = R;
-
-//    if(dim==3){
-//    newR.col(2) = beta*newR.col(2);
-//    }
+    if(dim==3){
+    newR.col(2) = beta*newR.col(2);
+    }
+    mat newdist = distance_part(newR); //do we need this?
 
     if(dim==1){
         for(i=0;i<N;i++){
@@ -88,13 +89,13 @@ double Interact::wavefunc_interact(mat R, double alpha_, mat distanceRij){
         }
     } else{
         for(i=0;i<N;i++){
-            for(int l=0;l<N;l++){
+            for(int l=i+1;l<N;l++){
                 if(i!=l){
-                    f*=(1 - a/distanceRij(i,l));
+                    f*=(1 - a/newdist(i,l));
                 for(j=0;j<dim;j++){
-                    if(j==2){
-                        g += beta*beta*newR(i,j)*newR(i,j);
-                    } else{
+                    //if(j==2){
+                    //    g += beta*beta*newR(i,j)*newR(i,j);
+                    //} else{
                         g += newR(i,j)*newR(i,j);//g += dot(R.row(i),R.row(i));
                     }
                 }
@@ -102,7 +103,6 @@ double Interact::wavefunc_interact(mat R, double alpha_, mat distanceRij){
             }
         }
 
-    }
 
     double psi = exp(-alpha_*g)*f;
     return psi;
