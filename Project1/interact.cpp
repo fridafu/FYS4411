@@ -207,6 +207,7 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
                 double greens = exp((greensold-greensnew)/(4*Ddt));
 
                 double A = (wavefunc_interact(R4new,current_alpha, distR4new))/wavefunc_interact(R4,current_alpha, distancematrix);
+                A = abs(A);
                 A *= A;
                 A = greens*A;
                 // test if new position is more probable than random number between 0 and 1.
@@ -226,10 +227,11 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
 
                 }
             double deltakinE = energy_interact(R4, current_alpha); //
-            double dwf = d_wavefunc_interact(R4new,current_alpha, distancematrix);
+            //double dwf = d_wavefunc_interact(R4new,current_alpha, distancematrix);
+
             sumKE += deltakinE;
-            sum_d_wf += dwf;
-            sum_d_wf_E += dwf*deltakinE;
+            //sum_d_wf += dwf;
+            //sum_d_wf_E += dwf*deltakinE;
 
             sumKEsq += deltakinE*deltakinE;
         }
@@ -237,12 +239,12 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
         myfile << scientific << "Acceptance = " << accept/(mc*N) << endl;
     }
 
-    double mean_KE = sumKE/(N*mc);
-    double mean_d_wf = sum_d_wf/(N*mc);
-    double mean_d_wf_E = sum_d_wf_E/(N*mc);
+    double mean_KE = sumKE/mc;
+    //double mean_d_wf = sum_d_wf/(N*mc);
+    //double mean_d_wf_E = sum_d_wf_E/(N*mc);
 
-    myfile << "Energy squared = "<< sumKEsq/(N*mc) << endl;
-    myfile << "Variance = " << sumKEsq/(N*mc) - (mean_KE*mean_KE)<< endl;
+    myfile << "Energy squared = "<< sumKEsq/(mc) << endl;
+    myfile << "Variance = " << sumKEsq/(mc) - (mean_KE*mean_KE)<< endl;
 
     myfile <<scientific << "Energy = " << mean_KE << endl;
     end=clock();
@@ -250,8 +252,8 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
     cout << "Interaction and all are finished! Yay." << endl;
     vec mean_values = zeros(3);
     mean_values(0) = mean_KE;
-    mean_values(1) = mean_d_wf;
-    mean_values(2) = mean_d_wf_E;
+    //mean_values(1) = mean_d_wf;
+    //mean_values(2) = mean_d_wf_E;
     return mean_values;
 }
 
@@ -280,6 +282,7 @@ mat Interact::lapphi(mat R, double alpha_){
             lphi(k) = -2*alpha_*((dim-1) -2*alpha_*dot(R.row(k),R.row(k)));
         }
     }
+
     return lphi;
 }
 
@@ -288,6 +291,7 @@ mat Interact::nablaphi(mat R, double alpha_){
     if(dim==3){
         newR.col(2) = R.col(2)*beta;
     }
+
     return -2*alpha_*newR;
 
 }
@@ -329,7 +333,6 @@ mat Interact::nablaf(mat R, mat distR){
             }
         }
     }
-
     return sum;
 }
 
