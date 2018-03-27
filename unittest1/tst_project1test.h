@@ -2,6 +2,7 @@
 #include <gmock/gmock-matchers.h>
 #include "../Project1/solver.h"
 #include "../Project1/bruteforce.h"
+#include "../Project1/interact.h"
 
 using namespace testing;
 
@@ -115,4 +116,30 @@ TEST(project1test, interaction){
 
     EXPECT_NEAR(sumR2, shouldbe, 1e-4) << "distance between |Ri-Rj| not calculated correctly";
     delete B;
+}
+
+TEST(project1test,energyinteraction){
+    double alpha = 0.5;
+    double rho = 0.1;
+    double dt = 0.001;
+    int mc = 10000; // monte carlo cycles
+    int numpart = 500;
+    int howmanyDs = 3;
+    double beta = 1;
+    double hbar = 1;
+    double mass = 1;
+    double omega = 1;
+    double h = 0.001;
+
+    Solver S(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
+    Interact* Int = new Interact(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
+
+    ofstream myfile;
+
+
+    myfile.open("testtest.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+    Int->solve_interact(myfile, alpha);
+    myfile.close();
+    delete Int;
+
 }
