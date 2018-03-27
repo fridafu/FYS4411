@@ -7,9 +7,12 @@
 #include "impsamp.cpp"
 #include "interact.h"
 #include "interact.cpp"
+#include "testinteract.cpp"
 #include "armadillo"
 using namespace std;
 using namespace arma;
+
+
 
 int main(){
     double alpha = 0.5;
@@ -46,6 +49,8 @@ int main(){
     Imp->langevin(myfile,alpha);
     Int->solve_interact(myfile, alpha);
     myfile.close();
+
+
     //Imp->best_alpha();
     delete B;
     delete Imp;

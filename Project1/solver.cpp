@@ -1,5 +1,4 @@
 #include "solver.h"
-
 Solver::Solver(double s_beta,
                double s_hbar,
                double mass,
