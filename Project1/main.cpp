@@ -20,10 +20,10 @@ int main(){
     double h = 0.001;
     int mc = 100000; // monte carlo cycles
 
-    int numpart = 6; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
+    int numpart = 10; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
 
     int howmanyDs = 3;
-    double beta = 1;//sqrt(8);
+    double beta = sqrt(8);
     double hbar = 1;
     double mass = 1;
     double omega = 1;
@@ -36,7 +36,7 @@ int main(){
     ofstream myfile;
 
 
-    myfile.open("n6d3take1.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+    myfile.open("lapphichange10particle2.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
     //B->solve(myfile);
     //B->solve_num(myfile);
     //Imp->langevin(myfile);

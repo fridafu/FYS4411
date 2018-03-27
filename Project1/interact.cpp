@@ -259,12 +259,16 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
 
 mat Interact::quantumF(mat R, double alpha_, mat rij){
     mat ngg = nablaphi(R,alpha_);
-    mat nff = nablaf(R,rij);
+    mat nff = newnablaf(rij,R);
     return 2*ngg + 2*nff;
 }
 
 mat Interact::lapphi(mat R, double alpha_){
     mat lphi = zeros(N);
+    mat newR = R;
+    if(dim==3){
+        newR.col(2) = R.col(2)*beta;
+    }
     double energy_r = 0;
     /*for(int i = 0; i < N; i++){
         for(int j = 0; j < dim; j++){
@@ -274,12 +278,12 @@ mat Interact::lapphi(mat R, double alpha_){
     lphi = -2*alpha_*((dim-1)+beta-2*alpha_*energy_r);
     return lphi;*/
 
+
     for(int k = 0; k < N; k++){
         if(dim == 3){
-            R.col(2) = beta*R.col(2);
-            lphi(k) = -2*alpha_*(dim-1 + beta -2*alpha_*dot(R.row(k),R.row(k))); // write more effecient, calculate 2alpha and beta^2 as own variables
+            lphi(k) = -2*alpha_*(dim-1 + beta-2*alpha_*dot(newR.row(k),newR.row(k))); // write more effecient, calculate 2alpha and beta^2 as own variables
         } else{
-            lphi(k) = -2*alpha_*((dim-1) -2*alpha_*dot(R.row(k),R.row(k)));
+            lphi(k) = -2*alpha_*((dim-1) -2*alpha_*dot(newR.row(k),newR.row(k)));
         }
     }
 
