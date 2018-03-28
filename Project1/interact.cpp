@@ -152,8 +152,6 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
     double sumKEsq = 0;
     double sum_d_wf_E = 0;
     double sdt = sqrt(dt);
-    double randomno = 0;
-    double alpha4 = current_alpha*(-4);
     while(num_alpha < size(alpha_vec,0)){
 
         //current_alpha = alpha;//alpha_vec(num_alpha);
@@ -281,7 +279,7 @@ mat Interact::lapphi(mat R, double alpha_){
 
     for(int k = 0; k < N; k++){
         if(dim == 3){
-            lphi(k) = -2*alpha_*(dim-1 + beta-2*alpha_*dot(newR.row(k),newR.row(k))); // write more effecient, calculate 2alpha and beta^2 as own variables
+            lphi(k) = -2*alpha_*(dim-1 + beta - 2*alpha_*dot(newR.row(k),newR.row(k))); // write more effecient, calculate 2alpha and beta^2 as own variables
         } else{
             lphi(k) = -2*alpha_*((dim-1) -2*alpha_*dot(newR.row(k),newR.row(k)));
         }
@@ -469,6 +467,7 @@ double Interact::energy_interact(mat R, double alphanow){
     cout << "difference nf^2 = " << abs(sumnf2 - sumnf2test) << endl;
     cout << "totsum(energy) = " << totsum << endl;
     double c = 0.5;
+
     for(int j = 0; j < N; j++) {
         r2 = 0;
         for(int q = 0; q < dim; q++) {

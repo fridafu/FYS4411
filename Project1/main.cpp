@@ -8,7 +8,7 @@
 #include "interact.h"
 #include "interact.cpp"
 #include "armadillo"
-#include "catch.hpp"
+
 
 using namespace std;
 using namespace arma;
@@ -18,7 +18,7 @@ int main(){
     double rho = 0.1;
     double dt = 0.001; // [0.001, 0.01]
     double h = 0.001;
-    int mc = 100000; // monte carlo cycles
+    int mc = 1000; // monte carlo cycles
 
     int numpart = 10; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -36,7 +36,7 @@ int main(){
     ofstream myfile;
 
 
-    myfile.open("lapphichange10particle2.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+    myfile.open("lapphichange10mc1000.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
     //B->solve(myfile);
     //B->solve_num(myfile);
     //Imp->langevin(myfile);
