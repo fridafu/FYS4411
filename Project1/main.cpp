@@ -18,9 +18,9 @@ int main(){
     double rho = 0.1;
     double dt = 0.001; // [0.001, 0.01]
     double h = 0.001;
-    int mc = 1000; // monte carlo cycles
+    int mc = 100000; // monte carlo cycles
 
-    int numpart = 10; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
+    int numpart = 50; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
 
     int howmanyDs = 3;
     double beta = sqrt(8);

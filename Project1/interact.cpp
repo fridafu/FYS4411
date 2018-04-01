@@ -383,7 +383,7 @@ mat Interact::nablafsquared(mat init_distance, mat R){
     mat vecrmi;
     mat sumtot = zeros(N);
     for(int k = 0; k < N; k++){
-        for(int j = 0; j < N; j++){
+        for(int j = 0; j < k; j++){//changed  j < N to j < k
             if(k != j){
                 rkj = init_distance(k,j);
                 rkja = (rkj - a);
@@ -476,5 +476,5 @@ double Interact::energy_interact(mat R, double alphanow){
         Vext += c*r2; //calculate potential energy
     }
     cout << "Vext = " << Vext << endl;
-    return totsum + Vext /*+ lphi*/;
+    return totsum; //+ Vext /*+ lphi*/;
 }

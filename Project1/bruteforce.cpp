@@ -41,8 +41,8 @@ void Bruteforce::solve( std::ofstream &myfile){
     double newE = 0;
     mat testR = init_pos();
     mat dis = distance_part(testR);
-    cout << testR << endl;
-    cout << dis << endl;
+//    cout << testR << endl;
+//    cout << dis << endl;
     while(num_alpha < size(alpha_vec,0)){
         current_alpha = alpha;
 
