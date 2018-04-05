@@ -16,7 +16,7 @@ Impsamp::Impsamp(double s_beta,
     Solver(s_beta, s_hbar, mass,s_omega, s_alpha, s_rho, s_mc, s_N, s_dim, s_h, s_dt)
 {}
 
-vec Impsamp::langevin( std::ofstream &myfile, double alphanow){
+vec Impsamp::langevin(std::ofstream &myfile, ofstream &myfile4, double alphanow){
     myfile << endl << "Importance Sampling:" << endl;
     start=clock();
     double D = 0.5; //diffusion coefficient
@@ -73,7 +73,8 @@ vec Impsamp::langevin( std::ofstream &myfile, double alphanow){
                     Fqnew(j) = Fq(j);
                 }
                 // calculate change in energy
-                double deltakinE = energy_real(R3, current_alpha); // energy_real can also be used? that makes no sense though, since its already perfect..
+                double deltakinE = energy_num(R3, current_alpha); // energy_real can also be used? that makes no sense though, since its already perfect..
+                myfile4 << scientific << deltakinE << endl;
                 double dwf = -d_wavefunc(R3new,current_alpha);
                 sumKE += deltakinE;
                 sum_d_wf += dwf;
@@ -120,8 +121,9 @@ double Impsamp::energy_impsamp(mat &R, double alpha){
     return Ek + Vext;
 }
 double Impsamp::best_alpha(){
-    ofstream alphafile;
+    ofstream alphafile;ofstream alphafile2;
     alphafile.open("murr.dat");
+    alphafile2.open("murr2.dat");
     double alpha_the_best;
     vec mean_values;
     vec alpha_ = zeros(100);
@@ -129,7 +131,7 @@ double Impsamp::best_alpha(){
     double gamma = 0.02; //hilsen alocias
     double tol = 0.01;
     for(int i=0;i<99;i++){
-        mean_values = langevin(alphafile, alpha_(i));
+        mean_values = langevin(alphafile, alphafile2, alpha_(i));
         double mean_EK = mean_values(0);
         double mean_d_wf = mean_values(1);
         double mean_d_wf_E = mean_values(2);

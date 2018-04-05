@@ -135,5 +135,7 @@ double Solver::energy_real(mat &R, double alpha){ //done optimization
             energy += R(i,j)*R(i,j);
         }
     }
-    return (0.5*omega*omega - 2*alpha*alpha)*energy + alpha*dim*N;
+    double en = (0.5*omega*omega - 2*alpha*alpha)*energy + alpha*dim*N;
+    return en;
+
 }
