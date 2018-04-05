@@ -108,7 +108,7 @@ double Interact::wavefunc_interact(mat R, double alpha_, mat distanceRij){
     return psi;
 }
 
-double Interact::d_wavefunc_interact(mat R, double alpha_, mat distanceRij){
+double Interact::d_wavefunc_interact(mat R, double alpha_, mat distanceRij){ // JEG ER FEEEIL. FIKS MEG så kan vi finne alphajustright<3
     int i; int j;
     double g = 0;
     double f = 1;
@@ -171,6 +171,7 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
         double greensold = 0;
         mat distR4new = distancematrix;
         for(i=0;i<mc;i++){
+            cout << i << endl;
 
             //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
             for(j=0;j<N;j++){
@@ -462,12 +463,12 @@ double Interact::energy_interact(mat R, double alphanow){
         energysq += energy(k)*energy(k);
     }
 
-    cout << "suma2 = " <<sumasum<< endl;
-    cout << "nablaf = " << nfsum << endl;
-    cout << "nphi = " << nphisum << endl;
-    cout << "lphi = " << lphisum << endl;
-    cout << "difference nf^2 = " << abs(sumnf2 - sumnf2test) << endl;
-    cout << "totsum(energy) = " << totsum << endl;
+    //cout << "suma2 = " <<sumasum<< endl;
+    //cout << "nablaf = " << nfsum << endl;
+    //cout << "nphi = " << nphisum << endl;
+    //cout << "lphi = " << lphisum << endl;
+    //cout << "difference nf^2 = " << abs(sumnf2 - sumnf2test) << endl;
+
     double c = 0.5;
     for(int j = 0; j < N; j++) {
         r2 = 0;

@@ -23,7 +23,7 @@ double Bruteforce::energy_local(){
     return 0.5 * hbar * omega * N * dim;
 }
 
-void Bruteforce::solve( std::ofstream &myfile){
+void Bruteforce::solve(std::ofstream &myfile, ofstream &myfile2){
     double energy = energy_local();
 
     myfile << "dim = " << dim << ", N = " << N << ", dt = " << dt << ", alpha = " << alpha << " and mc = " << mc << endl << endl;
@@ -69,13 +69,15 @@ void Bruteforce::solve( std::ofstream &myfile){
                 } else {
                     Rnew(j) = R(j);
                 }
-                newE += energy_real(R, current_alpha); // calculate change in energy
+                double bajs = energy_real(R, current_alpha);
+                myfile2 << scientific << bajs << endl;
+                newE += bajs; // calculate change in energy
            }
         }
 
         num_alpha += 1;
         myfile << scientific << "Acceptance = " << accept/(mc*N) << endl;
-        cout << "Brute force finished! Hang in there <3" << endl;
+        cout << "Analytical finished! Hang in there <3" << endl;
     }
 
     /*
@@ -102,7 +104,7 @@ mat Bruteforce::init_pos(){
     }
     return position;
 }
-void Bruteforce::solve_num( std::ofstream &myfile){
+void Bruteforce::solve_num( std::ofstream &myfile, std::ofstream &myfile3){
     random_device rd;
     mt19937_64 genMT64(rd());
     uniform_real_distribution<double> doubleRNG(0,1);
@@ -138,7 +140,7 @@ void Bruteforce::solve_num( std::ofstream &myfile){
                 }
 
                 double A = (wavefunc(R2new,current_alpha))/wavefunc(R2,current_alpha);
-
+                A = abs(A);
                 A *= A;
                 // test if new position is more probable than random number between 0 and 1.
                 if((A > 1) || (A > doubleRNG(genMT64))) {
@@ -150,7 +152,7 @@ void Bruteforce::solve_num( std::ofstream &myfile){
                 }
                 // calculate change in energy
                 double drit = energy_num(R2, current_alpha);
-                // cout << R2 << endl;
+                myfile3 << scientific << drit << endl;
 
                 //sumKE += energy_num(R2, current_alpha);
                 sumKE += drit;

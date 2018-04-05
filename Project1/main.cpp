@@ -18,12 +18,12 @@ int main(){
     double rho = 0.1;
     double dt = 0.001; // [0.001, 0.01]
     double h = 0.001;
-    int mc = 100000; // monte carlo cycles
+    int mc = 1048576; // monte carlo cycles
 
     int numpart = 10; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    int howmanyDs = 3;
-    double beta = sqrt(8);
+    int howmanyDs = 1;
+    double beta = 1;//sqrt(8);
     double hbar = 1;
     double mass = 1;
     double omega = 1;
@@ -34,20 +34,23 @@ int main(){
     Interact* Int = new Interact(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
 
     ofstream myfile;
+    ofstream myfile2;
+    ofstream myfile3;
+    ofstream myfile4;
 
 
-    myfile.open("lapphichange10particle2.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-    //B->solve(myfile);
-    //B->solve_num(myfile);
-    //Imp->langevin(myfile);
-    //Int->solve_interact(myfile);
-
-    //myfile.open("interact.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-    B->solve(myfile);
-    B->solve_num(myfile);
-    Imp->langevin(myfile,alpha);
-    Int->solve_interact(myfile, alpha);
+    myfile.open("blocktest.dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+    myfile2.open("Ea.dat");
+    myfile3.open("En.dat");
+    myfile4.open("Eimp.dat");
+    B->solve(myfile,myfile2);
+    B->solve_num(myfile,myfile3);
+    Imp->langevin(myfile,myfile4,alpha);
+    //Int->solve_interact(myfile, alpha);
     myfile.close();
+    myfile2.close();
+    myfile3.close();
+    myfile4.close();
     //Imp->best_alpha();
     delete B;
     delete Imp;
