@@ -10,7 +10,7 @@ public:
     mat too_close(mat Rtull);
     double wavefunc_interact(mat R, double alphanow, mat distancematrix);
     double energy_interact(mat R, double alphanow);
-    vec solve_interact(std::ofstream &myfile, double alphanoe);
+    vec solve_interact(std::ofstream &myfile, ofstream &myfile5, double alphanoe);
     double d_wavefunc_interact(mat R, double alphanow, mat distancematrix);
 
     mat lapphi(mat R, double alpha_);
