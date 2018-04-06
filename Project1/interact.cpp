@@ -130,7 +130,7 @@ double Interact::d_wavefunc_interact(mat R, double alpha_, mat distanceRij){ // 
     return psi*-g;
 }
 
-vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make him take alpha as an input
+vec Interact::solve_interact( std::ofstream &myfile, std::ofstream &myfile5, double alphanow){ // make him take alpha as an input
     myfile << endl << "Calculation with interaction: " << endl;
 
     start=clock();
@@ -154,92 +154,88 @@ vec Interact::solve_interact( std::ofstream &myfile, double alphanow){ // make h
     double sdt = sqrt(dt);
     double randomno = 0;
     double alpha4 = current_alpha*(-4);
-    while(num_alpha < size(alpha_vec,0)){
 
-        //current_alpha = alpha;//alpha_vec(num_alpha);
-        // initialize random positions
-        mat R4 = init_pos_interact();
-        mat R4new = R4;
-        mat distancematrix = distance_part(R4);
-        //cout << distancematrix << endl;
-        int i; int j; int q;
-        mat Fq = quantumF(R4, current_alpha,distancematrix);
-        //initialize expectation values
-        double accept = 0;
-        mat Fqnew = Fq;
-        double greensnew;
-        double greensold = 0;
-        mat distR4new = distancematrix;
-        for(i=0;i<mc;i++){
-            cout << i << endl;
+    //current_alpha = alpha;//alpha_vec(num_alpha);
+    // initialize random positions
+    mat R4 = init_pos_interact();
+    mat R4new = R4;
+    mat distancematrix = distance_part(R4);
+    //cout << distancematrix << endl;
+    int i; int j; int q;
+    mat Fq = quantumF(R4, current_alpha,distancematrix);
+    //initialize expectation values
+    double accept = 0;
+    mat Fqnew = Fq;
+    double greensnew;
+    double greensold = 0;
+    mat distR4new = distancematrix;
+    for(i=0;i<mc;i++){
+        cout << i << endl;
 
-            //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
-            for(j=0;j<N;j++){
+        //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
+        for(j=0;j<N;j++){
 
-                greensnew = 0;
-                for(q=0;q<dim;q++){
+            greensnew = 0;
+            for(q=0;q<dim;q++){
 
-                    R4new(j,q) = R4(j,q) + Ddt*Fq(j,q) + gaussianRNG(genMT64)*sdt;
-                    //cout << R4(j,q) << endl;
-                    //cout << R4new(j,q) << endl;
-                    //Fqnew(j,q) = quantumF(R4, current_alpha,distR4new);//replace
-                    //cout << j << q << endl;
-                }
+                R4new(j,q) = R4(j,q) + Ddt*Fq(j,q) + gaussianRNG(genMT64)*sdt;
+                //cout << R4(j,q) << endl;
+                //cout << R4new(j,q) << endl;
+                //Fqnew(j,q) = quantumF(R4, current_alpha,distR4new);//replace
+                //cout << j << q << endl;
+            }
 
 
-                distR4new = distance_part(R4new);
-                Fqnew = quantumF(R4new, current_alpha,distR4new);// REPLACE THIS!!!!!
+            distR4new = distance_part(R4new);
+            Fqnew = quantumF(R4new, current_alpha,distR4new);// REPLACE THIS!!!!!
 
-                greensnew = norm(R4.row(j) - R4new.row(j) - Ddt*Fqnew.row(j));
-                greensnew *= greensnew;
-                greensold =norm(R4new.row(j) - R4.row(j) - Ddt*Fq.row(j));
-                greensold *= greensold;
-                //greens = dot(0.5*(Fq.row(j) + Fqnew.row(j)),(Ddt05*(Fq.row(j)-Fqnew.row(j))-R4new.row(j)+R4.row(j)));
+            greensnew = norm(R4.row(j) - R4new.row(j) - Ddt*Fqnew.row(j));
+            greensnew *= greensnew;
+            greensold =norm(R4new.row(j) - R4.row(j) - Ddt*Fq.row(j));
+            greensold *= greensold;
+            //greens = dot(0.5*(Fq.row(j) + Fqnew.row(j)),(Ddt05*(Fq.row(j)-Fqnew.row(j))-R4new.row(j)+R4.row(j)));
 
-                /*for(p = 0; p < N; p++){
+            /*for(p = 0; p < N; p++){
 
-                    if(p!=j){
-                        distR4new(j,p) = norm(R4new.row(j)- R4new.row(p));
-                        distR4new(p,j) = distR4new(j,p);
-
-                    }
-                }*/
-
-                double greens = exp((greensold-greensnew)/(4*Ddt));
-
-                double A = (wavefunc_interact(R4new,current_alpha, distR4new))/wavefunc_interact(R4,current_alpha, distancematrix);
-                A = abs(A);
-                A *= A;
-                A = greens*A;
-                // test if new position is more probable than random number between 0 and 1.
-                if((A > 1) || (A > doubleRNG(genMT64))){
-
-                    R4(j) = R4new(j); //accept new position
-                    Fq(j) = Fqnew(j);
-                    accept += 1;
-                    distancematrix = distR4new;
-
-                }else {
-                    R4new(j) = R4(j);
-                    Fqnew(j) = Fq(j);
-                    distR4new = distancematrix;
-                }
-                // calculate change in energy
+                if(p!=j){
+                    distR4new(j,p) = norm(R4new.row(j)- R4new.row(p));
+                    distR4new(p,j) = distR4new(j,p);
 
                 }
-            double deltakinE = energy_interact(R4, current_alpha); //
-            //double dwf = d_wavefunc_interact(R4new,current_alpha, distancematrix);
+            }*/
 
-            sumKE += deltakinE;
-            //sum_d_wf += dwf;
-            //sum_d_wf_E += dwf*deltakinE;
+            double greens = exp((greensold-greensnew)/(4*Ddt));
 
-            sumKEsq += deltakinE*deltakinE;
-        }
+            double A = (wavefunc_interact(R4new,current_alpha, distR4new))/wavefunc_interact(R4,current_alpha, distancematrix);
+            A = abs(A);
+            A *= A;
+            A = greens*A;
+            // test if new position is more probable than random number between 0 and 1.
+            if((A > 1) || (A > doubleRNG(genMT64))){
+                R4(j) = R4new(j); //accept new position
+                Fq(j) = Fqnew(j);
+                accept += 1;
+                distancematrix = distR4new;
+            }else {
+                R4new(j) = R4(j);
+                Fqnew(j) = Fq(j);
+                distR4new = distancematrix;
+            }
+            // calculate change in energy
+
+            }
+        double deltakinE = energy_interact(R4, current_alpha); //
+        myfile5 << scientific << deltakinE << endl;
+        //double dwf = d_wavefunc_interact(R4new,current_alpha, distancematrix);
+
+        sumKE += deltakinE;
+        //sum_d_wf += dwf;
+        //sum_d_wf_E += dwf*deltakinE;
+
+        sumKEsq += deltakinE*deltakinE;
+    }
         num_alpha += 1;
         myfile << scientific << "Acceptance = " << accept/(mc*N) << endl;
-    }
-
     double mean_KE = sumKE/mc;
     //double mean_d_wf = sum_d_wf/(N*mc);
     //double mean_d_wf_E = sum_d_wf_E/(N*mc);
@@ -477,6 +473,6 @@ double Interact::energy_interact(mat R, double alphanow){
         }
         Vext += c*r2; //calculate potential energy
     }
-    cout << "Vext = " << Vext << endl;
+    //cout << "Vext = " << Vext << endl;
     return totsum + Vext /*+ lphi*/;
 }
