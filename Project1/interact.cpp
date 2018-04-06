@@ -131,7 +131,8 @@ double Interact::d_wavefunc_interact(mat R, double alpha_, mat distanceRij){ // 
 }
 
 vec Interact::solve_interact( std::ofstream &myfile, std::ofstream &myfile5, double alphanow){ // make him take alpha as an input
-    myfile << endl << "Calculation with interaction: " << endl;
+    myfile << endl << "# Calculation with interaction: " << endl;
+    myfile << "# dim = " << dim << ", N = " << N << ", dt = " << dt << ", alpha = " << alpha << " and mc = " << mc << endl << endl;
 
     start=clock();
     double D = 0.5; //diffusion coefficient
@@ -235,22 +236,21 @@ vec Interact::solve_interact( std::ofstream &myfile, std::ofstream &myfile5, dou
         sumKEsq += deltakinE*deltakinE;
     }
         num_alpha += 1;
-        myfile << scientific << "Acceptance = " << accept/(mc*N) << endl;
     double mean_KE = sumKE/mc;
     //double mean_d_wf = sum_d_wf/(N*mc);
     //double mean_d_wf_E = sum_d_wf_E/(N*mc);
 
-    myfile << "Energy squared = "<< sumKEsq/(mc) << endl;
-    myfile << "Variance = " << sumKEsq/(mc) - (mean_KE*mean_KE)<< endl;
-
-    myfile <<scientific << "Energy = " << mean_KE << endl;
+    //myfile << "Energy squared = "<< sumKEsq/(mc) << endl;
+    //myfile << "Variance = " << sumKEsq/(mc) - (mean_KE*mean_KE)<< endl;
     end=clock();
-    myfile<<scientific<<"Interaction CPU time (sec) : "<<((double)end-(double)start)/CLOCKS_PER_SEC<<endl;
+
     cout << "Interaction and all are finished! Yay." << endl;
     vec mean_values = zeros(3);
     mean_values(0) = mean_KE;
     //mean_values(1) = mean_d_wf;
     //mean_values(2) = mean_d_wf_E;
+    myfile << "# Energy" << "     " << "Acceptance" << "   " << "CPU time" << "        " << "Solver" << endl;
+    myfile << scientific << mean_KE << " " << scientific << accept/(mc*N) << " " << scientific << ((double)end-(double)start)/CLOCKS_PER_SEC << "    " << 3 << "  # Interaction" << endl;
     return mean_values;
 }
 
