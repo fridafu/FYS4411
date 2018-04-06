@@ -403,7 +403,13 @@ mat Interact::nablafsquared(mat init_distance, mat R){
         }
     }
     for(int p = 0; p < N; p++){
-        sumtot(p) = dot(s1.row(p), s2.row(p));
+        for(int q = 0; q < N; q++){
+            if(p != q){
+                sumtot(p) = dot(s1.row(p),s2.row(q));
+            }
+
+        }
+        //sumtot(p) = dot(s1.row(p), s2.row(p));
         //REQUIRE(s1 == runsuma)
     }
 
