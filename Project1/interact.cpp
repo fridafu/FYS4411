@@ -385,6 +385,7 @@ mat Interact::nablafsquared(mat init_distance, mat R){
     mat vecrkj;
     mat vecrmi;
     mat sumtot = zeros(N);
+    /*
     for(int k = 0; k < N; k++){
         for(int j = 0; j < N; j++){
             if(k != j){
@@ -409,7 +410,20 @@ mat Interact::nablafsquared(mat init_distance, mat R){
         sumtot(p) = dot(s1.row(p), s2.row(p));
         //REQUIRE(s1 == runsuma)
     }
-
+    */
+    mat nf = newnablaf(R,init_distance);
+    mat kvec = zeros(N);
+    for(int k = 0; k < N; k++){
+        for(int i = 0; i < N; i++){
+            if(i!=k){
+                for(int j = 0; j < N; j++){
+                    if(j!=k){
+                        kvec(k) += nf.row(i)*nf.row(j);
+                    }
+                }
+            }
+        }
+    }
     return sumtot;
 }
 /*
