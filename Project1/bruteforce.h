@@ -1,5 +1,6 @@
 #ifndef BRUTEFORCE_H
 #define BRUTEFORCE_H
+
 #include "solver.h"
 
 class Bruteforce : public Solver {

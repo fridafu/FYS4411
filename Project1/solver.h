@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <random>
-#include "armadillo"
+#include <armadillo>
 #include <cmath>
 using namespace std;
 using namespace arma;
@@ -30,13 +30,13 @@ public:
     double rho; //position update parameter
 
     // functions in class
-    double wavefunc(mat &R, double alpha_);
-    double d_wavefunc(mat &R, double alpha_);
+    double wavefunc(const mat &R, double alpha_);
+    double d_wavefunc(const mat &R, double alpha_);
     mat init_pos_gaus();
-    mat distance_part(mat R);
-    double energy_num(mat &R, double alpha);
-    mat F(mat &R_, double alpha_);
-    double energy_real(mat &R, double alpha); //
+    mat distance_part(const mat &R);
+    double energy_num(const mat &R, double alpha);
+    mat F(const mat &R_, double alpha_);
+    double energy_real(const mat &R, double alpha); //
 private:
 };
 #endif

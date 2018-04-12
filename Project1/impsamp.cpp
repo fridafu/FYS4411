@@ -50,6 +50,7 @@ vec Impsamp::langevin(std::ofstream &myfile, ofstream &myfile4, double alphanow)
     // iterate over MC cycles
 
     for(i=0;i<mc;i++){
+        double bommelom = 0;
         //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
         for(j=0;j<N;j++){
             greens = 0;
@@ -75,9 +76,11 @@ vec Impsamp::langevin(std::ofstream &myfile, ofstream &myfile4, double alphanow)
             myfile4 << scientific << deltakinE << endl;
             double dwf = -d_wavefunc(R3new,current_alpha);
             sumKE += deltakinE;
+            bommelom += deltakinE;
             sum_d_wf += dwf;
             sum_d_wf_E += dwf*deltakinE;
             }
+    myfile4 << scientific << bommelom/N << endl;
     }
     num_alpha += 1;
     double mean_KE = sumKE/(N*mc);
@@ -95,7 +98,7 @@ vec Impsamp::langevin(std::ofstream &myfile, ofstream &myfile4, double alphanow)
     return mean_values;
 }
 
-double Impsamp::energy_impsamp(mat &R, double alpha){
+double Impsamp::energy_impsamp(const mat &R, double alpha){
     double Vext = 0;
     double r2 = 0;
     int i; int j;
