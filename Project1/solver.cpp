@@ -32,7 +32,7 @@ Solver::Solver(double s_beta,
 }
 
 
-double Solver::wavefunc(mat &R, double alpha_){
+double Solver::wavefunc(const mat &R, double alpha_){
     //bool interact = y/n ??
     int i; int j;
     double g = 0;
@@ -52,7 +52,7 @@ double Solver::wavefunc(mat &R, double alpha_){
     return psi;
 }
 
-double Solver::d_wavefunc(mat &R, double alpha_){
+double Solver::d_wavefunc(const mat &R, double alpha_){
     //bool interact = y/n ??
     int i; int j;
     double g = 0;
@@ -72,9 +72,9 @@ double Solver::d_wavefunc(mat &R, double alpha_){
     return psi*(-g);
 }
 mat Solver::init_pos_gaus(){
-    random_device rd;
-    mt19937_64 genMT64(rd());
-    normal_distribution<double> gaussianRNG(0.,1);
+    static random_device rd;
+    static mt19937_64 genMT64(rd());
+    static normal_distribution<double> gaussianRNG(0.,1);
     double sdt = sqrt(dt);
     int k; int l;
     mat position = zeros(N,dim);
@@ -85,7 +85,7 @@ mat Solver::init_pos_gaus(){
     }
     return position;
 }
-mat Solver::distance_part(mat R){
+mat Solver::distance_part(const mat &R){
     mat rij = zeros(N,N);
     for(int i = 0; i < N; i++){
         for(int j = i+1; j < N; j++){
@@ -98,7 +98,7 @@ mat Solver::distance_part(mat R){
     return rij;
 }
 
-double Solver::energy_num(mat &R, double alphanow){
+double Solver::energy_num(const mat &R, double alphanow){
 
     double wavefuncnow = wavefunc(R, alphanow);
     double Ek = 0;
@@ -123,11 +123,11 @@ double Solver::energy_num(mat &R, double alphanow){
     return Ek + Vext;
 }
 
-mat Solver::F(mat &R_, double alpha_){
+mat Solver::F(const mat &R_, double alpha_) {
     return -4*R_*alpha_;
 }
 
-double Solver::energy_real(mat &R, double alpha){ //done optimization
+double Solver::energy_real(const mat &R, double alpha){ //done optimization
     int i; int j;
     double energy = 0;
     for(i = 0; i < N; i++){

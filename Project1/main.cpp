@@ -1,13 +1,8 @@
 #include <iostream>
 #include "solver.h"
-#include "solver.cpp"
 #include "bruteforce.h"
-#include "bruteforce.cpp"
 #include "impsamp.h"
-#include "impsamp.cpp"
 #include "interact.h"
-#include "interact.cpp"
-#include "armadillo"
 #include "catch.hpp"
 
 using namespace std;
@@ -17,9 +12,9 @@ int main(){
     vec alphavec = linspace<vec>(0.3, 0.7, 9);
     double rho = 0.1;
     double dt = 0.001; // [0.001, 0.01]
-    double h = 0.001;
-    int mc = 1048576; // monte carlo cycles
-    int numpart = 10; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
+    double h = 0.0001;
+    int numpart = 100; //CHANGE THE NAME!!!!!!!!!!!!!!!!!!!!!!!!!
+    int mc = 1e5 / numpart; // monte carlo cycles
     int howmanyDs = 3;
     double beta = sqrt(8);
     double hbar = 1;
@@ -39,7 +34,7 @@ int main(){
     ofstream myfile4;
     ofstream myfile5;
 
-    string filename = "e_n10_d3_";
+    string filename = "b_n100_d1";
 
     myfile.open(filename + "_alpha" + std::to_string(alpha) + ".dat");     /*CHANGE MY NAME!!!!!!!!!!!!!  DONT YOU DARE NOT CHANGE ME !!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
     //myfile2.open("Ea" + filename + "_alpha"  + std::to_string(alpha) + ".dat");
@@ -57,8 +52,8 @@ int main(){
     myfile5.close();
 
     //Imp->best_alpha();
-    delete B;
-    delete Imp;
     delete Int;
+    delete Imp;
+    delete B;
     //}
 }

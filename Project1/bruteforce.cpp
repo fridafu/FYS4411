@@ -1,4 +1,3 @@
-#include "armadillo"
 #include "solver.h"
 #include "bruteforce.h"
 
@@ -49,6 +48,7 @@ void Bruteforce::solve(std::ofstream &myfile, ofstream &myfile2){
     double accept = 0;
 
     for(i=0;i<mc;i++){ // iterate over MC cycles
+        double bajsen = 0;
         //propose a new position Rnew(boson_j) by moving one boson from position R(boson_j) one at the time
         for(j=0;j<N;j++){
             for(q=0;q<dim;q++){
@@ -66,9 +66,11 @@ void Bruteforce::solve(std::ofstream &myfile, ofstream &myfile2){
                 Rnew(j) = R(j);
             }
             double bajs = energy_real(R, current_alpha);
-            myfile2 << scientific << bajs << endl;
             newE += bajs; // calculate change in energy
+            bajsen += bajs;
        }
+
+    myfile2 << scientific << bajsen/N << endl;
     }
 
     num_alpha += 1;
@@ -86,9 +88,9 @@ void Bruteforce::solve(std::ofstream &myfile, ofstream &myfile2){
 }
 
 mat Bruteforce::init_pos(){
-    random_device rd;
-    mt19937_64 genMT64(rd());
-    uniform_real_distribution<double> doubleRNG(0,1);
+    static random_device rd;
+    static mt19937_64 genMT64(rd());
+    static uniform_real_distribution<double> doubleRNG(0,1);
     int k; int l;
     mat position = zeros(N,dim);
     for(k=0;k<N;k++){
@@ -100,9 +102,9 @@ mat Bruteforce::init_pos(){
     return position;
 }
 void Bruteforce::solve_num( std::ofstream &myfile, std::ofstream &myfile3){
-    random_device rd;
-    mt19937_64 genMT64(rd());
-    uniform_real_distribution<double> doubleRNG(0,1);
+    static random_device rd;
+    static mt19937_64 genMT64(rd());
+    static uniform_real_distribution<double> doubleRNG(0,1);
     start=clock();
 
     // loop over alpha when we try out
@@ -110,6 +112,7 @@ void Bruteforce::solve_num( std::ofstream &myfile, std::ofstream &myfile3){
     vec alpha_vec = ones(1);
     double current_alpha;
     double sumKE = 0;
+    double sumKe2 = 0;
     current_alpha = alpha;//alpha_vec(num_alpha);
     // initialize random positions
     mat R2 = init_pos();
@@ -133,7 +136,7 @@ void Bruteforce::solve_num( std::ofstream &myfile, std::ofstream &myfile3){
             A = abs(A);
             A *= A;
             // test if new position is more probable than random number between 0 and 1.
-            if((A > 1) || (A > doubleRNG(genMT64))) {
+            if((A > doubleRNG(genMT64))) {
 
                 R2(j) = R2new(j); //accept new position
                 accept += 1;
@@ -142,15 +145,22 @@ void Bruteforce::solve_num( std::ofstream &myfile, std::ofstream &myfile3){
             }
             // calculate change in energy
             double drit = energy_num(R2, current_alpha);
-            myfile3 << scientific << drit << endl;
+
 
             //sumKE += energy_num(R2, current_alpha);
             sumKE += drit;
+            sumKe2 += drit*drit;
+
+            myfile3 << scientific << drit << " " << wavefunc(R2new,current_alpha) << endl;
+
         }
+
+
     }
     num_alpha += 1;
     end=clock();
+    double var = sumKe2/(mc*N) - pow(sumKE/(mc*N),2);
     cout << "Numerical energy is finished, yay!" << endl;
-    myfile << scientific << sumKE/(mc*N) << " " << scientific << accept/(mc*N) << " " << scientific << ((double)end-(double)start)/CLOCKS_PER_SEC << "    " << 1 << "  # Numerical" << endl;
+    myfile << scientific << sumKE/(mc*N) << " " << scientific << accept/(mc*N) << " var:" << var << " " << scientific << ((double)end-(double)start)/CLOCKS_PER_SEC << "    " << 1 << "  # Numerical" << endl;
 }
 
