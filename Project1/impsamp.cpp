@@ -94,7 +94,7 @@ vec Impsamp::langevin(std::ofstream &myfile, ofstream &myfile4, double alphanow)
     mean_values(1) = mean_d_wf;
     mean_values(2) = mean_d_wf_E;
 
-    myfile << scientific << mean_KE << " " << scientific << accept/(mc*N) << " " << scientific << ((double)end-(double)start)/CLOCKS_PER_SEC << "    " << 2 << "  # Impsamp" << endl;
+    myfile << scientific << dt << " "  <<scientific << mean_KE << " " << scientific << accept/(mc*N) << " " << scientific << ((double)end-(double)start)/CLOCKS_PER_SEC << "    " << 2 << "  # Impsamp" << endl;
     return mean_values;
 }
 
