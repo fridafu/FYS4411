@@ -27,7 +27,7 @@ int main(){
     myfile.open("dt_table_test.dat");
     //for(int elem=0; elem<size(dtvec,0); elem++){
     double alpha = 0.5; //alphavec(elem);
-    double dt = 1000;//dtvec(elem);
+    double dt = 0.0000001;//dtvec(elem);
     Solver S(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt); // initialize Solver class
     Bruteforce* B = new Bruteforce(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
     Impsamp* Imp = new Impsamp(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt);
