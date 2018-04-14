@@ -27,10 +27,10 @@ vec Impsamp::langevin(std::ofstream &myfile, ofstream &myfile4, double alphanow)
     double sumKE = 0;
     double sum_d_wf = 0;
     double sum_d_wf_E = 0;
-    random_device rd;
-    mt19937_64 genMT64(rd());
-    normal_distribution<double> gaussianRNG(0.,0.5);
-    uniform_real_distribution<double> doubleRNG(0,1);
+    static random_device rd;
+    static mt19937_64 genMT64(rd());
+    static normal_distribution<double> gaussianRNG(0.,0.5);
+    static uniform_real_distribution<double> doubleRNG(0,1);
 
     // loop over alpha when we try out
     double sdt = sqrt(dt);
@@ -60,8 +60,9 @@ vec Impsamp::langevin(std::ofstream &myfile, ofstream &myfile4, double alphanow)
                 greens += 0.5*(Fq(j,q) + Fqnew(j,q))*(Ddt05*(Fq(j,q)-Fqnew(j,q))-R3new(j,q)+R3(j,q));
             }
             greens = exp(greens);
-            double A = greens*(wavefunc(R3new,current_alpha))/wavefunc(R3,current_alpha);
+            double A = (wavefunc(R3new,current_alpha))/wavefunc(R3,current_alpha);
             A *= A;
+            A = A * greens;
             // test if new position is more probable than random number between 0 and 1.
             if((A > 1) || (A > doubleRNG(genMT64))){
                 R3(j) = R3new(j); //accept new position
