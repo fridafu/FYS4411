@@ -6,6 +6,7 @@
 #include <random>
 #include <armadillo>
 #include <cmath>
+#include <iomanip>
 using namespace std;
 using namespace arma;
 
@@ -37,6 +38,7 @@ public:
     double energy_num(const mat &R, double alpha);
     mat F(const mat &R_, double alpha_);
     double energy_real(const mat &R, double alpha); //
+
 private:
 };
 #endif

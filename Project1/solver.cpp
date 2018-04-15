@@ -139,3 +139,4 @@ double Solver::energy_real(const mat &R, double alpha){ //done optimization
     return en;
 
 }
+
