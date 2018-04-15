@@ -21,7 +21,7 @@ mat Interact::init_pos_interact(){
     mat position = init_pos_gaus();
 
     mat comfort_zone = too_close(position);
-    cout << "cf" << comfort_zone << endl;
+    //cout << "cf" << comfort_zone << endl;
     //cout << comfort_zone << endl;
     //cout << min(min(distance_part(comfort_zone))) << endl;
     //mat zeropos = zeros(N, dim);
@@ -107,13 +107,32 @@ double Interact::wavefunc_interact(mat R, double alpha_){
     double psi = exp(-alpha_*g)*f;
     return psi;
 }
-/*
-double Interact::d_wavefunc_interact(mat R, double alpha_, mat distanceRij){ // JEG ER FEEEIL. FIKS MEG så kan vi finne alphajustright<3
-    mat ngg = nablaphi(R,alpha_);
-    mat nff = newnablaf(distanceRij,R);
-    return ngg + nff;
+
+double Interact::d_wavefunc_interact(const mat &R, double alpha_){
+    mat newR = R;
+    if(dim==3){
+        newR.col(2) = newR.col(2)*beta;
+    }
+
+    int i; int j;
+    double g = 0;
+    if(dim==1){
+        for(i=0;i<N;i++){
+            g += newR(i)*newR(i); // take Product of Pi(g(Ri)
+        }
+    } else{
+        for(i=0;i<N;i++){
+            for(j=0;j<dim;j++){
+                g += newR(i,j)*newR(i,j);//g += dot(R.row(i),R.row(i));
+            }
+        }
+    }
+    //double f = 1; //no interaction here!!
+    //double psi = exp(-alpha_*g)*f;
+    return -g;
 }
-*/
+
+
 vec Interact::solve_interact( std::ofstream &myfile, std::ofstream &myfile5, double alphanow){ // make him take alpha as an input
     myfile << endl << "# Calculation with interaction: " << endl;
     myfile << "# dim = " << dim << ", N = " << N << ", dt = " << dt << ", alpha = " << alpha << " and mc = " << mc << endl << endl;
@@ -133,9 +152,9 @@ vec Interact::solve_interact( std::ofstream &myfile, std::ofstream &myfile5, dou
     vec alpha_vec = ones(1);
     double current_alpha = alphanow;
     double sumKE = 0;
-    //double sum_d_wf = 0;
+    double sum_d_wf = 0;
     double sumKEsq = 0;
-    //double sum_d_wf_E = 0;
+    double sum_d_wf_E = 0;
     double sdt = sqrt(dt);
 
 
@@ -210,20 +229,18 @@ vec Interact::solve_interact( std::ofstream &myfile, std::ofstream &myfile5, dou
 
             sumKE += deltakinE;
             sumKEsq += deltakinE*deltakinE;
-            myfile5 << scientific << deltakinE << endl;
+            //myfile5 << scientific << deltakinE << endl;
+            double dwf = d_wavefunc_interact(R4new,current_alpha);
+            sum_d_wf += dwf;
+            sum_d_wf_E += dwf*deltakinE;
 
             }
-        //double dwf = d_wavefunc_interact(R4new,current_alpha, distancematrix);
-
-
-        //sum_d_wf += dwf;
-        //sum_d_wf_E += dwf*deltakinE;
 
     }
         num_alpha += 1;
     double mean_KE = sumKE/(mc*N);
-    //double mean_d_wf = sum_d_wf/(N*mc);
-    //double mean_d_wf_E = sum_d_wf_E/(N*mc);
+    double mean_d_wf = sum_d_wf/(N*mc);
+    double mean_d_wf_E = sum_d_wf_E/(N*mc);
 
     //myfile << "Energy squared = "<< sumKEsq/(mc) << endl;
     //myfile << "Variance = " << sumKEsq/(mc) - (mean_KE*mean_KE)<< endl;
@@ -232,21 +249,21 @@ vec Interact::solve_interact( std::ofstream &myfile, std::ofstream &myfile5, dou
     cout << "Interaction and all are finished! Yay." << endl;
     vec mean_values = zeros(3);
     mean_values(0) = mean_KE;
-    //mean_values(1) = mean_d_wf;
-    //mean_values(2) = mean_d_wf_E;
+    mean_values(1) = mean_d_wf;
+    mean_values(2) = mean_d_wf_E;
     double var = sumKEsq/(mc*N) - mean_KE*mean_KE;
     myfile << "# Energy" << "     " << "Acceptance" << "   " << "CPU time" << "        " << "Solver" << endl;
     myfile << scientific << mean_KE << " " << scientific << accept/(mc*N) << " var: " << var << " " << scientific << ((double)end-(double)start)/CLOCKS_PER_SEC << "    " << 3 << "  # Interaction" << endl;
     return mean_values;
 }
 
-mat Interact::quantumF(mat R, double alpha_, mat rij){
+mat Interact::quantumF(const mat &R, double alpha_, mat rij){
     mat ngg = nablaphi(R,alpha_);
     mat nff = newnablaf(rij,R);
     return 2*ngg + 2*nff;
 }
 
-mat Interact::lapphi(mat R, double alpha_){
+mat Interact::lapphi(const mat &R, double alpha_){
     mat lphi = zeros(N);
     mat newR = R;
     if(dim==3){
@@ -273,7 +290,7 @@ mat Interact::lapphi(mat R, double alpha_){
     return lphi;
 }
 
-mat Interact::nablaphi(mat R, double alpha_){
+mat Interact::nablaphi(const mat &R, double alpha_){
     mat newR = R;
     if(dim==3){
         newR.col(2) = R.col(2)*beta;
@@ -323,7 +340,7 @@ mat Interact::nablaf(mat R, mat distR){
     return sum;
 }
 
-mat Interact::suma2(mat distanceR){
+mat Interact::suma2(const mat &distanceR){
     mat summm = zeros(N);
     double rkj;
     for(int k = 0; k < N; k++){
@@ -461,4 +478,32 @@ double Interact::energy_interact(const mat& R, double alphanow){
     }
     //cout << "Vext = " << Vext << endl;
     return totsum + Vext /*+ lphi*/;
+}
+
+double Interact::best_alpha(){
+    ofstream alphafile;ofstream alphafile2;
+    alphafile.open("onlyg2.dat");
+    alphafile2.open("alphas_start_0.4.dat");
+    double alpha_the_best;
+    vec mean_values;
+    vec alpha_ = zeros(1000);
+    alpha_(0) = 0.4;
+    double gamma = 0.1;
+    double tol = 0.01;
+    for(int i=0;i<999;i++){
+        mean_values = solve_interact(alphafile, alphafile2, alpha_(i));
+        double mean_EK = mean_values(0);
+        double mean_d_wf = mean_values(1);
+        double mean_d_wf_E = mean_values(2);
+        alpha_(i+1) = alpha_(i)- gamma*2*(mean_d_wf_E - mean_EK*mean_d_wf);
+        alphafile2 << setprecision(12) << alpha_(i) << endl;
+        if(abs(alpha_(i+1) - alpha_(i)) < tol){
+            alpha_the_best = alpha_(i+1);
+            alphafile << i << endl; //checking if it oscillates in the bottom
+
+        }
+    }
+    alphafile << alpha_the_best << endl;
+    alphafile.close();
+    return alpha_the_best;
 }

@@ -74,14 +74,15 @@ vec Impsamp::langevin(std::ofstream &myfile, ofstream &myfile4, double alphanow)
             }
             // calculate change in energy
             double deltakinE = energy_real(R3, current_alpha); // energy_real can also be used? that makes no sense though, since its already perfect..
-            myfile4 << scientific << deltakinE << endl;
-            double dwf = -d_wavefunc(R3new,current_alpha);
+            //myfile4 << scientific << deltakinE << endl;
+            double dwf = d_wavefunc(R3new,current_alpha);
             sumKE += deltakinE;
             bommelom += deltakinE;
             sum_d_wf += dwf;
             sum_d_wf_E += dwf*deltakinE;
             }
-    myfile4 << scientific << bommelom/N << endl;
+    //
+        //myfile4 << scientific << bommelom/N << endl;
     }
     num_alpha += 1;
     double mean_KE = sumKE/(N*mc);
@@ -121,23 +122,24 @@ double Impsamp::energy_impsamp(const mat &R, double alpha){
     }
     return Ek + Vext;
 }
+
 double Impsamp::best_alpha(){
     ofstream alphafile;ofstream alphafile2;
-    alphafile.open("murr.dat");
-    alphafile2.open("murr2.dat");
+    alphafile.open("murr2.dat");
+    alphafile2.open("alphaconverge_impsamp0.3.dat");
     double alpha_the_best;
     vec mean_values;
-    vec alpha_ = zeros(100);
-    alpha_(0) = 1.0;
-    double gamma = 0.02; //hilsen alocias
+    vec alpha_ = zeros(1000);
+    alpha_(0) = 0.3;
+    double gamma = 0.2; //hilsen alocias 0.02
     double tol = 0.01;
-    for(int i=0;i<99;i++){
+    for(int i=0;i<999;i++){
         mean_values = langevin(alphafile, alphafile2, alpha_(i));
         double mean_EK = mean_values(0);
         double mean_d_wf = mean_values(1);
         double mean_d_wf_E = mean_values(2);
         alpha_(i+1) = alpha_(i)- gamma*2*(mean_d_wf_E - mean_EK*mean_d_wf);
-        cout << alpha_(i) << endl;
+        alphafile2 << setprecision(12) << alpha_(i) << endl;
         if(abs(alpha_(i+1) - alpha_(i)) < tol){
             alpha_the_best = alpha_(i+1);
             alphafile << i << endl; //checking if it oscillates in the bottom
@@ -148,4 +150,3 @@ double Impsamp::best_alpha(){
     alphafile.close();
     return alpha_the_best;
 }
-

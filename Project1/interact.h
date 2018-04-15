@@ -11,17 +11,17 @@ public:
     double wavefunc_interact(mat R, double alphanow);
     double energy_interact(const mat &R, double alphanow);
     vec solve_interact(std::ofstream &myfile, ofstream &myfile5, double alphanoe);
-    double d_wavefunc_interact(mat R, double alphanow, mat distancematrix);
+    double d_wavefunc_interact(const mat &R, double alphanow);
 
-    mat lapphi(mat R, double alpha_);
-    mat nablaphi(mat R, double alpha_);
+    mat lapphi(const mat &R, double alpha_);
+    mat nablaphi(const mat &R, double alpha_);
     mat nablaphinablaF(mat R, mat distR, double alpha_);
     mat nablaf(mat R, mat distR);
     mat doublesum(mat R, mat distanceR);
-    mat suma2(mat distanceR);
-    mat quantumF(mat R, double alpha_, mat rij);
+    mat suma2(const mat &distanceR);
+    mat quantumF(const mat &R, double alpha_, mat rij);
     mat nablafsquared(const mat &init_distance, const mat &R);
     mat newnablaf(const mat &init_distance, const mat &R);
-
+    double best_alpha();
 };
 #endif
