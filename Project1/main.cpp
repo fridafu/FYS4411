@@ -25,11 +25,11 @@ int main(){
 
     ofstream myfile;
 
-    string folder = "alpha0_45/";
+    string folder = "alpha0_55/";
     myfile.open(folder + "dt_table_test.dat");
 
     for(int elem=0; elem<size(dtvec,0); elem++){
-        double alpha = 0.45; //alphavec(elem);
+        double alpha = 0.55; //alphavec(elem);
         double dt = dtvec(elem); // 0.0000001;//
         cout << "Doing " << scientific << to_string(dt) << endl;
         Solver S(beta, hbar, mass, omega, alpha, rho, mc, numpart, howmanyDs, h, dt); // initialize Solver class
