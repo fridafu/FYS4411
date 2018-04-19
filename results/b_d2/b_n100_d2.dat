@@ -1,0 +1,7 @@
+# dim = 2, N = 100, dt = 0.001, alpha = 0.5 and mc = 10495
+
+# Theoretical Energy = 1.000000e+02
+
+# Energy     Acceptance   CPU time        Solver
+1.000000e+02 9.198533e-01 1.093184e+00    0  # Analytic
+8.984200e+01 9.197818e-01 var:1.191393e+03 5.786015e+00    1  # Numerical
