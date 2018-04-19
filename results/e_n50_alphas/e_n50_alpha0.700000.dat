@@ -1,6 +1,0 @@
-
-# Calculation with interaction: 
-# dim = 3, N = 50, dt = 1.000000e-03, alpha = 7.000000e-01 and mc = 20991
-
-# Energy     Acceptance   CPU time        Solver
-1.679191e+02 4.509085e-01 var: 1.170906e+00 5.735652e+02    3  # Interaction
