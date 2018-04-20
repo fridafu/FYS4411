@@ -1,0 +1,8 @@
+# dim = 1, N = 1, dt = 0.001, alpha = 0.3 and mc = 1048576
+
+# Theoretical Energy = 5.000000e-01
+
+#Energy     Acceptance   CPU time        Solver
+5.718884e-01 9.889145e-01 3.654440e+00    0  # Analytic
+5.399682e-01 9.896421e-01 3.710214e+00    1  # Numerical
+3.903692e-01 9.967184e-01 3.684476e+00    2  # Impsamp

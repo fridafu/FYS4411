@@ -4,4 +4,4 @@
 
 # Energy     Acceptance   CPU time        Solver
 1.000000e+02 9.198533e-01 1.093184e+00    0  # Analytic
-8.984200e+01 9.197818e-01 var:1.191393e+03 5.786015e+00    1  # Numerical
+8.984200e+01 9.197818e-01 5.786015e+00    1  # Numerical
