@@ -3,4 +3,4 @@
 # dim = 3, N = 100, dt = 0.001, alpha = 0.3 and mc = 10495
 
 # Energy     Acceptance   CPU time        Solver
-1.483572e+02 7.871577e-01 var: 1.359991e+01 2.115342e+03    3  # Interaction
+1.483572e+02 7.871577e-01 2.115342e+03    3  # Interaction
