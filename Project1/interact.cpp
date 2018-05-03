@@ -21,15 +21,7 @@ mat Interact::init_pos_interact(){
     mat position = init_pos_gaus();
 
     mat comfort_zone = too_close(position);
-    //cout << "cf" << comfort_zone << endl;
-    //cout << comfort_zone << endl;
-    //cout << min(min(distance_part(comfort_zone))) << endl;
-    //mat zeropos = zeros(N, dim);
-    //mat doesthiswork = too_close(zeropos);
-    //cout << "check" << doesthiswork << endl;
-    //cout << "is all above a " << distance_part(doesthiswork) << endl;
     return comfort_zone;
-    //return doesthiswork;
 }
 
 mat Interact::too_close(mat Rtull){
@@ -43,32 +35,21 @@ mat Interact::too_close(mat Rtull){
     int counter = 0;
     bool get_away_you_stink = true;
     while(get_away_you_stink == true){
-        //cout << "while" << endl;
         counter += 1;
         get_away_you_stink = false;
         int o; int p; int dude;
         for(o=0;o<N;o++){
-            //cout << "for o" << endl;
-
             for(p=o+1;p<N;p++){
-                //cout << "for p" << endl;
-                //cout << closeness(o,p) << endl;
                 if(closeness(o,p) < a){
-                    //cout << "ifclose" << endl;
                     get_away_you_stink = true;
                     for(dude=0;dude<dim;dude++){
-                        //cout << "for every dim new position is made" << endl;
                         Rtull(o,dude) = gaussianRNG(genMT64)*sdt;
                         closeness(o,p) = norm(Rtull.row(o)-Rtull.row(p));
-                        //cout << Rtull(o,dude)<<endl;
                     }
                 }
             }
-            //closeness = distance_part(Rtull); //test
-
         }
     }
-
     return Rtull;
 }
 
@@ -80,7 +61,7 @@ double Interact::wavefunc_interact(mat R, double alpha_){
     if(dim==3){
     newR.col(2) = beta*newR.col(2);
     }
-    mat newdist = distance_part(newR); //do we need this?
+    mat newdist = distance_part(newR); 
 
     if(dim==1){
         for(i=0;i<N;i++){
@@ -93,9 +74,6 @@ double Interact::wavefunc_interact(mat R, double alpha_){
                 if(i!=l){
                     f*=(1 - a/newdist(i,l));
                 for(j=0;j<dim;j++){
-                    //if(j==2){
-                    //    g += beta*beta*newR(i,j)*newR(i,j);
-                    //} else{
                         g += newR(i,j)*newR(i,j);//g += dot(R.row(i),R.row(i));
                     }
                 }
