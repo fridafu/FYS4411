@@ -24,16 +24,10 @@ Solver::Solver(double s_beta,
     h = s_h;
     h2 = 1.0/(h*h);
     dt = s_dt;
-
-    //random_device rd;
-    //mt19937_64 genMT64(rd);
-    //rd.seed(time(NULL));
-    //doubleRNG = uniform_real_distribution<double>(0,1);
 }
 
 
 double Solver::wavefunc(const mat &R, double alpha_){
-    //bool interact = y/n ??
     int i; int j;
     double g = 0;
     if(dim==1){
@@ -53,7 +47,6 @@ double Solver::wavefunc(const mat &R, double alpha_){
 }
 
 double Solver::d_wavefunc(const mat &R, double alpha_){
-    //bool interact = y/n ??
     int i; int j;
     double g = 0;
     if(dim==1){
@@ -91,8 +84,6 @@ mat Solver::distance_part(const mat &R){
         for(int j = i+1; j < N; j++){
             rij(i,j) = norm(R.row(i) - R.row(j));
             rij(j,i) = rij(i,j);
-
-            //rij(i,j) = absdistance(R(i),R(j));
         }
     }
     return rij;
@@ -137,6 +128,5 @@ double Solver::energy_real(const mat &R, double alpha){ //done optimization
     }
     double en = (0.5*omega*omega - 2*alpha*alpha)*energy + alpha*dim*N;
     return en;
-
 }
 
